@@ -6,6 +6,25 @@ import '../../domain/models/time_span.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/time_format_scope.dart';
 
+final _dateFormats = <(String, String), DateFormat>{};
+final _numberFormats = <(String, String), NumberFormat>{};
+final _currencyFormats = <(String, String, int), NumberFormat>{};
+
+DateFormat _dateFormat(BuildContext context, String pattern) {
+  final locale = _locale(context);
+
+  return _dateFormats.putIfAbsent((pattern, locale), () => DateFormat(pattern, locale));
+}
+
+NumberFormat _currencyFormat(BuildContext context, String currency, int decimalDigits) {
+  final locale = _locale(context);
+
+  return _currencyFormats.putIfAbsent(
+    (locale, currency, decimalDigits),
+    () => NumberFormat.simpleCurrency(locale: locale, name: currency, decimalDigits: decimalDigits),
+  );
+}
+
 String _locale(BuildContext context) {
   return Localizations.localeOf(context).toLanguageTag();
 }
@@ -38,17 +57,17 @@ DateTime _weekday(int weekday) {
 String formatTime(BuildContext context, int minute) {
   final pattern = _uses24h(context) ? 'HH:mm' : 'h:mm a';
 
-  return DateFormat(pattern, _locale(context)).format(_at(minute));
+  return _dateFormat(context, pattern).format(_at(minute));
 }
 
 String formatTimeCompact(BuildContext context, int minute) {
   if (_uses24h(context)) {
-    return DateFormat('HH:mm', _locale(context)).format(_at(minute));
+    return _dateFormat(context, 'HH:mm').format(_at(minute));
   }
 
   final pattern = minute % 60 == 0 ? 'h a' : 'h:mm a';
 
-  return DateFormat(pattern, _locale(context)).format(_at(minute));
+  return _dateFormat(context, pattern).format(_at(minute));
 }
 
 String formatSpan(BuildContext context, TimeSpan span) {
@@ -76,43 +95,39 @@ String formatDuration(BuildContext context, int minutes) {
 }
 
 String formatHours(BuildContext context, int minutes) {
-  return NumberFormat('#,##0.#', _locale(context)).format(minutes / 60);
+  final locale = _locale(context);
+
+  return _numberFormats.putIfAbsent(('#,##0.#', locale), () => NumberFormat('#,##0.#', locale)).format(minutes / 60);
 }
 
 String formatMonth(BuildContext context, DateTime d) {
-  return _capitalize(DateFormat.LLLL(_locale(context)).format(d));
+  return _capitalize(_dateFormat(context, 'LLLL').format(d));
 }
 
 String formatMonthYear(BuildContext context, DateTime d) {
-  return _capitalize(DateFormat.yMMMM(_locale(context)).format(d));
+  return _capitalize(_dateFormat(context, 'yMMMM').format(d));
 }
 
 String formatMonthShort(BuildContext context, DateTime d) {
-  return _capitalize(DateFormat.LLL(_locale(context)).format(d)).replaceAll('.', '');
+  return _capitalize(_dateFormat(context, 'LLL').format(d)).replaceAll('.', '');
 }
 
 String formatDayHeader(BuildContext context, DateTime d) {
-  return _capitalize(DateFormat.MMMEd(_locale(context)).format(d));
+  return _capitalize(_dateFormat(context, 'MMMEd').format(d));
 }
 
 String formatWeekdayNarrow(BuildContext context, int weekday) {
-  return DateFormat.EEEEE(_locale(context)).format(_weekday(weekday)).toUpperCase();
+  return _dateFormat(context, 'EEEEE').format(_weekday(weekday)).toUpperCase();
 }
 
 String formatWeekdayName(BuildContext context, int weekday) {
-  return _capitalize(DateFormat.EEEE(_locale(context)).format(_weekday(weekday)));
+  return _capitalize(_dateFormat(context, 'EEEE').format(_weekday(weekday)));
 }
 
 String formatMoney(BuildContext context, int minor, String currency) {
-  final format = NumberFormat.simpleCurrency(
-    locale: _locale(context),
-    name: currency,
-    decimalDigits: minor % 100 == 0 ? 0 : 2,
-  );
-
-  return format.format(minor / 100);
+  return _currencyFormat(context, currency, minor % 100 == 0 ? 0 : 2).format(minor / 100);
 }
 
 String currencySymbol(BuildContext context, String currency) {
-  return NumberFormat.simpleCurrency(locale: _locale(context), name: currency).currencySymbol;
+  return _currencyFormat(context, currency, 2).currencySymbol;
 }

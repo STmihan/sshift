@@ -37,7 +37,7 @@ class MonthGrid extends ConsumerWidget {
     final p = context.palette;
     final start = gridStart(month, firstDayOfWeek);
     final weeks = weeksInMonth(month, firstDayOfWeek);
-    final range = dayRange(start, addDays(start, weeks * 7));
+    final range = monthGridRange(month, firstDayOfWeek);
     final shifts = ref.watch(shiftsInRangeProvider(range)).value ?? const [];
     final events = ref.watch(eventsInRangeProvider(range)).value ?? const [];
     final templates = ref.watch(templatesByIdProvider);

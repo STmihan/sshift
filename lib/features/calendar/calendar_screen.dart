@@ -4,19 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/shell/nav_bar_metrics.dart';
 import '../../core/theme/dimensions.dart';
 import '../../core/utils/dates.dart';
-import '../../core/widgets/circle_button.dart';
 import '../../core/widgets/month_picker/month_picker.dart';
-import '../../l10n/app_localizations.dart';
+import '../schedule/day_range.dart';
 import '../schedule/schedule_actions.dart';
+import '../schedule/schedule_providers.dart';
 import '../templates/templates_providers.dart';
 import 'state/first_day_of_week_provider.dart';
 import 'state/paint_mode_controller.dart';
+import 'widgets/calendar_header.dart';
 import 'widgets/day_popover/day_popover.dart';
 import 'widgets/month_grid.dart';
-import 'widgets/month_title.dart';
 import 'widgets/paint_bar.dart';
 import 'widgets/round_fab.dart';
-import 'widgets/today_pill.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -32,9 +31,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   static const _monthCount = 200 * 12;
   static const _fabGap = 32.0;
   static const _paintBarGap = 16.0;
+  static const _prefetchMonths = 3;
 
   late final _pages = PageController(initialPage: _indexOf(today()));
-  late DateTime _month = monthStart(today());
+  final _month = ValueNotifier<DateTime>(monthStart(today()));
+  final _prefetched = <(int, int), List<ProviderSubscription<Object?>>>{};
+  int? _prefetchedFirstDay;
 
   static int _indexOf(DateTime month) {
     return (month.year - _baseMonth.year) * 12 + month.month - 1;
@@ -46,8 +48,52 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   void dispose() {
+    for (final subscriptions in _prefetched.values) {
+      for (final subscription in subscriptions) {
+        subscription.close();
+      }
+    }
+
     _pages.dispose();
+    _month.dispose();
     super.dispose();
+  }
+
+  void _prefetchAround(int center, int firstDayOfWeek) {
+    final wanted = {
+      for (var offset = -_prefetchMonths; offset <= _prefetchMonths; offset++) (center + offset, firstDayOfWeek),
+    };
+
+    _prefetched.removeWhere((key, subscriptions) {
+      if (wanted.contains(key)) {
+        return false;
+      }
+
+      for (final subscription in subscriptions) {
+        subscription.close();
+      }
+
+      return true;
+    });
+
+    for (final key in wanted.difference(_prefetched.keys.toSet())) {
+      final range = monthGridRange(_monthAt(key.$1), key.$2);
+
+      _prefetched[key] = [
+        ref.listenManual(shiftsInRangeProvider(range), (_, _) {}),
+        ref.listenManual(eventsInRangeProvider(range), (_, _) {}),
+      ];
+    }
+  }
+
+  void _onPageChanged(int index) {
+    _month.value = _monthAt(index);
+
+    final firstDay = _prefetchedFirstDay;
+
+    if (firstDay != null) {
+      _prefetchAround(index, firstDay);
+    }
   }
 
   Future<void> _goTo(DateTime month) async {
@@ -63,7 +109,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Future<void> _pickMonth() async {
-    final month = await pickMonth(context, _month);
+    final month = await pickMonth(context, _month.value);
 
     if (month != null) {
       await _goTo(month);
@@ -99,12 +145,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
     final media = MediaQuery.of(context);
     final firstDayOfWeek = firstDayOfWeekOf(context, ref);
+
+    if (_prefetchedFirstDay != firstDayOfWeek) {
+      _prefetchedFirstDay = firstDayOfWeek;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _prefetchAround(_indexOf(_month.value), firstDayOfWeek);
+        }
+      });
+    }
     final painting = ref.watch(paintModeProvider) != null;
-    final now = today();
-    final isCurrentMonth = _month == monthStart(now);
     final bottomReserve = navBarBottomReserve(context);
 
     return Scaffold(
@@ -113,35 +165,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Column(
             children: [
               SizedBox(height: media.padding.top),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                child: Row(
-                  children: [
-                    CircleButton(icon: Icons.calendar_month_outlined, onTap: _pickMonth),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _pickMonth,
-                        child: MonthTitle(month: _month),
-                      ),
-                    ),
-                    AnimatedOpacity(
-                      opacity: isCurrentMonth ? 0 : 1,
-                      duration: const Duration(milliseconds: 150),
-                      child: IgnorePointer(
-                        ignoring: isCurrentMonth,
-                        child: TodayPill(label: l.today, onTap: () => _goTo(now)),
-                      ),
-                    ),
-                  ],
-                ),
+              CalendarHeader(
+                month: _month,
+                onPickMonth: _pickMonth,
+                onToday: () => _goTo(today()),
               ),
               Expanded(
                 child: PageView.builder(
                   controller: _pages,
                   scrollDirection: Axis.vertical,
                   itemCount: _monthCount,
-                  onPageChanged: (index) => setState(() => _month = _monthAt(index)),
+                  allowImplicitScrolling: true,
+                  onPageChanged: _onPageChanged,
                   itemBuilder: (context, index) => LayoutBuilder(
                     builder: (context, constraints) => SingleChildScrollView(
                       physics: const NeverScrollableScrollPhysics(),
