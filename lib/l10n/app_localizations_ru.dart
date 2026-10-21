@@ -313,4 +313,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get logs => 'Логи';
+
+  @override
+  String get openLinkFailed => 'Не удалось открыть ссылку';
 }

@@ -571,6 +571,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logs'**
   String get logs;
+
+  /// No description provided for @openLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t open the link'**
+  String get openLinkFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

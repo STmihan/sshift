@@ -88,5 +88,6 @@
   "system": "Системный",
   "themeLight": "Светлая",
   "themeDark": "Тёмная",
-  "logs": "Логи"
+  "logs": "Логи",
+  "openLinkFailed": "Не удалось открыть ссылку"
 }

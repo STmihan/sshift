@@ -105,5 +105,6 @@
   "system": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
-  "logs": "Logs"
+  "logs": "Logs",
+  "openLinkFailed": "Can't open the link"
 }

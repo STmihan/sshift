@@ -305,4 +305,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logs => 'Logs';
+
+  @override
+  String get openLinkFailed => 'Can\'t open the link';
 }

@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../app/shell/nav_bar_metrics.dart';
+import '../../core/app_links.dart';
+import '../../core/logger.dart';
 import '../../core/theme/theme_context.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/open_link.dart';
 import '../../core/widgets/centered_content.dart';
 import '../../core/widgets/field_row.dart';
 import '../../core/widgets/group_card.dart';
@@ -17,6 +20,7 @@ import '../../l10n/app_localizations.dart';
 import 'app_version_provider.dart';
 import 'settings_controller.dart';
 import 'widgets/chevron.dart';
+import 'widgets/external_link_icon.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -185,6 +189,19 @@ class SettingsScreen extends ConsumerWidget {
                           label: l.logs,
                           trailing: const Chevron(),
                           onTap: () => context.push(Routes.logs),
+                        ),
+                        FieldRow(
+                          label: githubName,
+                          trailing: const ExternalLinkIcon(),
+                          onTap: () async {
+                            final messenger = ScaffoldMessenger.of(context);
+                            final failedText = l.openLinkFailed;
+
+                            if (!await openExternalLink(githubRepositoryUrl)) {
+                              talker.warning('Failed to open $githubRepositoryUrl');
+                              messenger.showSnackBar(SnackBar(content: Text(failedText)));
+                            }
+                          },
                         ),
                       ],
                     ),

@@ -26,6 +26,7 @@ dependencies:
   shared_preferences: ^2.5.6
   talker_flutter: ^5.1.20
   talker_riverpod_logger: ^5.1.20
+  url_launcher: ^6.3.3
   uuid: ^4.6.0
 
 dev_dependencies:
