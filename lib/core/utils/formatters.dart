@@ -29,7 +29,7 @@ String _locale(BuildContext context) {
   return Localizations.localeOf(context).toLanguageTag();
 }
 
-bool _uses24h(BuildContext context) {
+bool uses24HourFormat(BuildContext context) {
   switch (TimeFormatScope.of(context)) {
     case TimeFormat.hours24:
       return true;
@@ -54,14 +54,18 @@ DateTime _weekday(int weekday) {
   return DateTime(2023, 1, 1 + weekday);
 }
 
+String formatDayPeriod(BuildContext context, {required bool pm}) {
+  return _dateFormat(context, 'a').format(_at(pm ? 12 * 60 : 0));
+}
+
 String formatTime(BuildContext context, int minute) {
-  final pattern = _uses24h(context) ? 'HH:mm' : 'h:mm a';
+  final pattern = uses24HourFormat(context) ? 'HH:mm' : 'h:mm a';
 
   return _dateFormat(context, pattern).format(_at(minute));
 }
 
 String formatTimeCompact(BuildContext context, int minute) {
-  if (_uses24h(context)) {
+  if (uses24HourFormat(context)) {
     return _dateFormat(context, 'HH:mm').format(_at(minute));
   }
 

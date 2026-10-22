@@ -6,8 +6,8 @@ import '../../../core/widgets/field_row.dart';
 import '../../../core/widgets/group_card.dart';
 import '../../../core/widgets/option_picker_sheet.dart';
 import '../../../core/widgets/switch_row.dart';
+import '../../../core/widgets/time_picker/pick_time.dart';
 import '../../../l10n/app_localizations.dart';
-import 'pick_time.dart';
 
 class TimeFields extends StatelessWidget {
   const TimeFields({
@@ -56,7 +56,7 @@ class TimeFields extends StatelessWidget {
             label: l.start,
             value: formatTime(context, startMinute),
             onTap: () async {
-              final minute = await pickTime(context, startMinute);
+              final minute = await pickTime(context, title: l.start, minute: startMinute);
 
               if (minute != null) {
                 onStart(minute);
@@ -73,7 +73,7 @@ class TimeFields extends StatelessWidget {
                   )
                 : null,
             onTap: () async {
-              final minute = await pickTime(context, endMinute);
+              final minute = await pickTime(context, title: l.end, minute: endMinute);
 
               if (minute != null) {
                 onEnd(minute);

@@ -29,6 +29,7 @@
   "delete": "Delete",
   "cancel": "Cancel",
   "today": "Today",
+  "done": "Done",
   "doneCount": "Done ({count})",
   "@doneCount": {"placeholders": {"count": {"type": "int"}}},
   "defaultValues": "Default values",

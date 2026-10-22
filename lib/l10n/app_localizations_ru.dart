@@ -89,6 +89,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get today => 'Сегодня';
 
   @override
+  String get done => 'Готово';
+
+  @override
   String doneCount(int count) {
     return 'Готово ($count)';
   }

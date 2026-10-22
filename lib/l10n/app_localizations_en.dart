@@ -89,6 +89,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
+  String get done => 'Done';
+
+  @override
   String doneCount(int count) {
     return 'Done ($count)';
   }
