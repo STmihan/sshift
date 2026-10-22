@@ -50,6 +50,19 @@ class DriftTemplatesRepository implements TemplatesRepository {
   }
 
   @override
+  Future<void> reorder(List<String> orderedIds) {
+    final now = DateTime.now();
+
+    return _db.transaction(() async {
+      for (final (index, id) in orderedIds.indexed) {
+        await (_db.update(_db.shiftTemplates)..where((t) => t.id.equals(id))).write(
+          ShiftTemplatesCompanion(sortOrder: Value(index), updatedAt: Value(now)),
+        );
+      }
+    });
+  }
+
+  @override
   Future<void> delete(String id) {
     return _db.transaction(() async {
       final shiftIds =

@@ -5,5 +5,7 @@ abstract interface class TemplatesRepository {
 
   Future<void> upsert(ShiftTemplate template);
 
+  Future<void> reorder(List<String> orderedIds);
+
   Future<void> delete(String id);
 }

@@ -7,10 +7,10 @@ import '../../../core/widgets/shift_avatar.dart';
 import '../../../domain/models/shift_template.dart';
 
 class TemplateTile extends StatelessWidget {
-  const TemplateTile({required this.template, required this.onTap, this.trailing, super.key});
+  const TemplateTile({required this.template, this.onTap, this.trailing, super.key});
 
   final ShiftTemplate template;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Widget? trailing;
 
   @override

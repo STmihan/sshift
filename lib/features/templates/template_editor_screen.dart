@@ -22,7 +22,7 @@ class TemplateEditorScreen extends ConsumerWidget {
     return TemplateEditorForm(
       key: ValueKey(template?.id),
       template: template,
-      newSortOrder: templates.length,
+      newSortOrder: templates.fold(0, (next, t) => t.sortOrder >= next ? t.sortOrder + 1 : next),
     );
   }
 }
