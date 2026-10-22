@@ -1,0 +1,1 @@
+enum AttachmentOwnerType { shift, event }

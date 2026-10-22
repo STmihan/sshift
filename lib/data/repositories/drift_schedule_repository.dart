@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/utils/dates.dart';
+import '../../domain/models/attachment_owner_type.dart';
 import '../../domain/models/calendar_event.dart';
 import '../../domain/models/pay.dart';
 import '../../domain/models/pay_type.dart';
@@ -66,7 +67,7 @@ class DriftScheduleRepository implements ScheduleRepository {
   @override
   Future<void> deleteShift(String id) {
     return _db.transaction(() async {
-      await _attachments.deleteForShifts([id]);
+      await _attachments.deleteForOwners(AttachmentOwnerType.shift, [id]);
       await (_db.delete(_db.shifts)..where((s) => s.id.equals(id))).go();
     });
   }
@@ -94,7 +95,10 @@ class DriftScheduleRepository implements ScheduleRepository {
 
   @override
   Future<void> deleteEvent(String id) {
-    return (_db.delete(_db.events)..where((e) => e.id.equals(id))).go();
+    return _db.transaction(() async {
+      await _attachments.deleteForOwners(AttachmentOwnerType.event, [id]);
+      await (_db.delete(_db.events)..where((e) => e.id.equals(id))).go();
+    });
   }
 
   @override

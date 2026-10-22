@@ -8,6 +8,7 @@ import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_sheet.dart';
 import '../../core/widgets/shift_avatar.dart';
 import '../../data/data_providers.dart';
+import '../../domain/models/attachment_owner.dart';
 import '../../domain/models/pay.dart';
 import '../../domain/models/shift.dart';
 import '../../l10n/app_localizations.dart';
@@ -131,7 +132,7 @@ class _ShiftSheetState extends ConsumerState<ShiftSheet> {
         ),
         const SizedBox(height: 12),
         NotesCard(notes: _notes, location: _location),
-        AttachmentsSection(shiftId: _draft.id),
+        AttachmentsSection(owner: AttachmentOwner.shift(_draft.id)),
       ],
     );
   }

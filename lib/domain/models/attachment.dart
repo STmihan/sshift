@@ -1,23 +1,25 @@
 import 'package:flutter/foundation.dart';
 
+import 'attachment_owner.dart';
+
 @immutable
 class Attachment {
   const Attachment({
     required this.id,
-    required this.shiftId,
+    required this.owner,
     required this.name,
     required this.path,
     required this.size,
     required this.createdAt,
   });
 
-  static const maxPerShift = 10;
+  static const maxPerOwner = 10;
 
   static const _imageExtensions = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'bmp'};
   static const _videoExtensions = {'mp4', 'mov', 'm4v', '3gp', 'webm', 'mkv', 'avi'};
 
   final String id;
-  final String shiftId;
+  final AttachmentOwner owner;
   final String name;
   final String path;
   final int size;

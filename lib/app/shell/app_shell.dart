@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/logger.dart';
 import '../../core/theme/dimensions.dart';
+import '../../data/data_providers.dart';
 import '../../features/calendar/state/paint_mode_controller.dart';
 import '../../features/updates/update_sheet.dart';
 import '../../features/updates/updates_controller.dart';
@@ -30,7 +32,16 @@ class _AppShellState extends ConsumerState<AppShell> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_checkForUpdates());
+      unawaited(_deleteOrphanedAttachments());
     });
+  }
+
+  Future<void> _deleteOrphanedAttachments() async {
+    try {
+      await ref.read(attachmentsRepositoryProvider).deleteOrphans();
+    } on Exception catch (error, stack) {
+      talker.handle(error, stack, 'Orphaned attachments cleanup failed');
+    }
   }
 
   Future<void> _checkForUpdates() async {

@@ -396,8 +396,166 @@ i1.GeneratedColumn<int> _column_20(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
+
+final class Schema3 extends i0.VersionedSchema {
+  Schema3({required super.database}) : super(version: 3);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    shiftTemplates,
+    shifts,
+    events,
+    attachments,
+    shiftsDay,
+    shiftsTemplate,
+    eventsDay,
+    attachmentsOwner,
+  ];
+  late final Shape0 shiftTemplates = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'shift_templates',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 shifts = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'shifts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_13,
+        _column_14,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_15,
+        _column_10,
+        _column_8,
+        _column_9,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 events = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_14,
+        _column_1,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_15,
+        _column_10,
+        _column_8,
+        _column_9,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 attachments = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'attachments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_21,
+        _column_22,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_20,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Index shiftsDay = i1.Index(
+    'shifts_day',
+    'CREATE INDEX shifts_day ON shifts (day)',
+  );
+  final i1.Index shiftsTemplate = i1.Index(
+    'shifts_template',
+    'CREATE INDEX shifts_template ON shifts (template_id, day)',
+  );
+  final i1.Index eventsDay = i1.Index(
+    'events_day',
+    'CREATE INDEX events_day ON events (day)',
+  );
+  final i1.Index attachmentsOwner = i1.Index(
+    'attachments_owner',
+    'CREATE INDEX attachments_owner ON attachments (owner_type, owner_id)',
+  );
+}
+
+class Shape4 extends i0.VersionedTable {
+  Shape4({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get ownerType =>
+      columnsByName['owner_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get ownerId =>
+      columnsByName['owner_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get path =>
+      columnsByName['path']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get size =>
+      columnsByName['size']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_21(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'owner_type',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_22(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'owner_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -406,6 +564,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from1To2(migrator, schema);
         return 2;
+      case 2:
+        final schema = Schema3(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from2To3(migrator, schema);
+        return 3;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -414,6 +577,7 @@ i0.MigrationStepWithVersion migrationSteps({
 
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from1To2: from1To2),
+  step: migrationSteps(from1To2: from1To2, from2To3: from2To3),
 );

@@ -2142,12 +2142,23 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _shiftIdMeta = const VerificationMeta(
-    'shiftId',
+  static const VerificationMeta _ownerTypeMeta = const VerificationMeta(
+    'ownerType',
   );
   @override
-  late final GeneratedColumn<String> shiftId = GeneratedColumn<String>(
-    'shift_id',
+  late final GeneratedColumn<String> ownerType = GeneratedColumn<String>(
+    'owner_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -2194,7 +2205,8 @@ class $AttachmentsTable extends Attachments
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    shiftId,
+    ownerType,
+    ownerId,
     name,
     path,
     size,
@@ -2217,13 +2229,21 @@ class $AttachmentsTable extends Attachments
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('shift_id')) {
+    if (data.containsKey('owner_type')) {
       context.handle(
-        _shiftIdMeta,
-        shiftId.isAcceptableOrUnknown(data['shift_id']!, _shiftIdMeta),
+        _ownerTypeMeta,
+        ownerType.isAcceptableOrUnknown(data['owner_type']!, _ownerTypeMeta),
       );
     } else if (isInserting) {
-      context.missing(_shiftIdMeta);
+      context.missing(_ownerTypeMeta);
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerIdMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -2270,9 +2290,13 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      shiftId: attachedDatabase.typeMapping.read(
+      ownerType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}shift_id'],
+        data['${effectivePrefix}owner_type'],
+      )!,
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
       )!,
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2301,14 +2325,16 @@ class $AttachmentsTable extends Attachments
 
 class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   final String id;
-  final String shiftId;
+  final String ownerType;
+  final String ownerId;
   final String name;
   final String path;
   final int size;
   final DateTime createdAt;
   const AttachmentRow({
     required this.id,
-    required this.shiftId,
+    required this.ownerType,
+    required this.ownerId,
     required this.name,
     required this.path,
     required this.size,
@@ -2318,7 +2344,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['shift_id'] = Variable<String>(shiftId);
+    map['owner_type'] = Variable<String>(ownerType);
+    map['owner_id'] = Variable<String>(ownerId);
     map['name'] = Variable<String>(name);
     map['path'] = Variable<String>(path);
     map['size'] = Variable<int>(size);
@@ -2329,7 +2356,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   AttachmentsCompanion toCompanion(bool nullToAbsent) {
     return AttachmentsCompanion(
       id: Value(id),
-      shiftId: Value(shiftId),
+      ownerType: Value(ownerType),
+      ownerId: Value(ownerId),
       name: Value(name),
       path: Value(path),
       size: Value(size),
@@ -2344,7 +2372,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AttachmentRow(
       id: serializer.fromJson<String>(json['id']),
-      shiftId: serializer.fromJson<String>(json['shiftId']),
+      ownerType: serializer.fromJson<String>(json['ownerType']),
+      ownerId: serializer.fromJson<String>(json['ownerId']),
       name: serializer.fromJson<String>(json['name']),
       path: serializer.fromJson<String>(json['path']),
       size: serializer.fromJson<int>(json['size']),
@@ -2356,7 +2385,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'shiftId': serializer.toJson<String>(shiftId),
+      'ownerType': serializer.toJson<String>(ownerType),
+      'ownerId': serializer.toJson<String>(ownerId),
       'name': serializer.toJson<String>(name),
       'path': serializer.toJson<String>(path),
       'size': serializer.toJson<int>(size),
@@ -2366,14 +2396,16 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
 
   AttachmentRow copyWith({
     String? id,
-    String? shiftId,
+    String? ownerType,
+    String? ownerId,
     String? name,
     String? path,
     int? size,
     DateTime? createdAt,
   }) => AttachmentRow(
     id: id ?? this.id,
-    shiftId: shiftId ?? this.shiftId,
+    ownerType: ownerType ?? this.ownerType,
+    ownerId: ownerId ?? this.ownerId,
     name: name ?? this.name,
     path: path ?? this.path,
     size: size ?? this.size,
@@ -2382,7 +2414,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   AttachmentRow copyWithCompanion(AttachmentsCompanion data) {
     return AttachmentRow(
       id: data.id.present ? data.id.value : this.id,
-      shiftId: data.shiftId.present ? data.shiftId.value : this.shiftId,
+      ownerType: data.ownerType.present ? data.ownerType.value : this.ownerType,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
       name: data.name.present ? data.name.value : this.name,
       path: data.path.present ? data.path.value : this.path,
       size: data.size.present ? data.size.value : this.size,
@@ -2394,7 +2427,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   String toString() {
     return (StringBuffer('AttachmentRow(')
           ..write('id: $id, ')
-          ..write('shiftId: $shiftId, ')
+          ..write('ownerType: $ownerType, ')
+          ..write('ownerId: $ownerId, ')
           ..write('name: $name, ')
           ..write('path: $path, ')
           ..write('size: $size, ')
@@ -2404,13 +2438,15 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, shiftId, name, path, size, createdAt);
+  int get hashCode =>
+      Object.hash(id, ownerType, ownerId, name, path, size, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AttachmentRow &&
           other.id == this.id &&
-          other.shiftId == this.shiftId &&
+          other.ownerType == this.ownerType &&
+          other.ownerId == this.ownerId &&
           other.name == this.name &&
           other.path == this.path &&
           other.size == this.size &&
@@ -2419,7 +2455,8 @@ class AttachmentRow extends DataClass implements Insertable<AttachmentRow> {
 
 class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   final Value<String> id;
-  final Value<String> shiftId;
+  final Value<String> ownerType;
+  final Value<String> ownerId;
   final Value<String> name;
   final Value<String> path;
   final Value<int> size;
@@ -2427,7 +2464,8 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   final Value<int> rowid;
   const AttachmentsCompanion({
     this.id = const Value.absent(),
-    this.shiftId = const Value.absent(),
+    this.ownerType = const Value.absent(),
+    this.ownerId = const Value.absent(),
     this.name = const Value.absent(),
     this.path = const Value.absent(),
     this.size = const Value.absent(),
@@ -2436,21 +2474,24 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   });
   AttachmentsCompanion.insert({
     required String id,
-    required String shiftId,
+    required String ownerType,
+    required String ownerId,
     required String name,
     required String path,
     required int size,
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       shiftId = Value(shiftId),
+       ownerType = Value(ownerType),
+       ownerId = Value(ownerId),
        name = Value(name),
        path = Value(path),
        size = Value(size),
        createdAt = Value(createdAt);
   static Insertable<AttachmentRow> custom({
     Expression<String>? id,
-    Expression<String>? shiftId,
+    Expression<String>? ownerType,
+    Expression<String>? ownerId,
     Expression<String>? name,
     Expression<String>? path,
     Expression<int>? size,
@@ -2459,7 +2500,8 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (shiftId != null) 'shift_id': shiftId,
+      if (ownerType != null) 'owner_type': ownerType,
+      if (ownerId != null) 'owner_id': ownerId,
       if (name != null) 'name': name,
       if (path != null) 'path': path,
       if (size != null) 'size': size,
@@ -2470,7 +2512,8 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
 
   AttachmentsCompanion copyWith({
     Value<String>? id,
-    Value<String>? shiftId,
+    Value<String>? ownerType,
+    Value<String>? ownerId,
     Value<String>? name,
     Value<String>? path,
     Value<int>? size,
@@ -2479,7 +2522,8 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   }) {
     return AttachmentsCompanion(
       id: id ?? this.id,
-      shiftId: shiftId ?? this.shiftId,
+      ownerType: ownerType ?? this.ownerType,
+      ownerId: ownerId ?? this.ownerId,
       name: name ?? this.name,
       path: path ?? this.path,
       size: size ?? this.size,
@@ -2494,8 +2538,11 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (shiftId.present) {
-      map['shift_id'] = Variable<String>(shiftId.value);
+    if (ownerType.present) {
+      map['owner_type'] = Variable<String>(ownerType.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -2519,7 +2566,8 @@ class AttachmentsCompanion extends UpdateCompanion<AttachmentRow> {
   String toString() {
     return (StringBuffer('AttachmentsCompanion(')
           ..write('id: $id, ')
-          ..write('shiftId: $shiftId, ')
+          ..write('ownerType: $ownerType, ')
+          ..write('ownerId: $ownerId, ')
           ..write('name: $name, ')
           ..write('path: $path, ')
           ..write('size: $size, ')
@@ -2549,9 +2597,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'events_day',
     'CREATE INDEX events_day ON events (day)',
   );
-  late final Index attachmentsShift = Index(
-    'attachments_shift',
-    'CREATE INDEX attachments_shift ON attachments (shift_id)',
+  late final Index attachmentsOwner = Index(
+    'attachments_owner',
+    'CREATE INDEX attachments_owner ON attachments (owner_type, owner_id)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2565,7 +2613,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     shiftsDay,
     shiftsTemplate,
     eventsDay,
-    attachmentsShift,
+    attachmentsOwner,
   ];
 }
 
@@ -3600,7 +3648,8 @@ typedef $$EventsTableProcessedTableManager =
 typedef $$AttachmentsTableCreateCompanionBuilder =
     AttachmentsCompanion Function({
       required String id,
-      required String shiftId,
+      required String ownerType,
+      required String ownerId,
       required String name,
       required String path,
       required int size,
@@ -3610,7 +3659,8 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
 typedef $$AttachmentsTableUpdateCompanionBuilder =
     AttachmentsCompanion Function({
       Value<String> id,
-      Value<String> shiftId,
+      Value<String> ownerType,
+      Value<String> ownerId,
       Value<String> name,
       Value<String> path,
       Value<int> size,
@@ -3632,8 +3682,13 @@ class $$AttachmentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get shiftId => $composableBuilder(
-    column: $table.shiftId,
+  ColumnFilters<String> get ownerType => $composableBuilder(
+    column: $table.ownerType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3672,8 +3727,13 @@ class $$AttachmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get shiftId => $composableBuilder(
-    column: $table.shiftId,
+  ColumnOrderings<String> get ownerType => $composableBuilder(
+    column: $table.ownerType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3710,8 +3770,11 @@ class $$AttachmentsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get shiftId =>
-      $composableBuilder(column: $table.shiftId, builder: (column) => column);
+  GeneratedColumn<String> get ownerType =>
+      $composableBuilder(column: $table.ownerType, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -3758,7 +3821,8 @@ class $$AttachmentsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> shiftId = const Value.absent(),
+                Value<String> ownerType = const Value.absent(),
+                Value<String> ownerId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> path = const Value.absent(),
                 Value<int> size = const Value.absent(),
@@ -3766,7 +3830,8 @@ class $$AttachmentsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion(
                 id: id,
-                shiftId: shiftId,
+                ownerType: ownerType,
+                ownerId: ownerId,
                 name: name,
                 path: path,
                 size: size,
@@ -3776,7 +3841,8 @@ class $$AttachmentsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String shiftId,
+                required String ownerType,
+                required String ownerId,
                 required String name,
                 required String path,
                 required int size,
@@ -3784,7 +3850,8 @@ class $$AttachmentsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion.insert(
                 id: id,
-                shiftId: shiftId,
+                ownerType: ownerType,
+                ownerId: ownerId,
                 name: name,
                 path: path,
                 size: size,

@@ -6,6 +6,7 @@ import 'package:sshift/data/database/app_database.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 const _updatedAt = 1792000000;
 
@@ -103,6 +104,47 @@ void main() {
         expect(shifts.single, isA<v2.ShiftsData>().having((s) => s.notes, 'notes', 'Notes'));
         expect(events.single, isA<v2.EventsData>().having((e) => e.title, 'title', 'Meeting'));
         expect(await newDb.select(newDb.attachments).get(), isEmpty);
+      },
+    );
+  });
+
+  test('migration from v2 to v3 turns shift attachments into owned attachments', () async {
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insert(
+          oldDb.attachments,
+          const v2.AttachmentsData(
+            id: 'a1',
+            shiftId: 's1',
+            name: 'photo.jpg',
+            path: 's1/a1_photo.jpg',
+            size: 1024,
+            createdAt: _updatedAt,
+          ),
+        );
+      },
+      validateItems: (newDb) async {
+        final attachments = await newDb.select(newDb.attachments).get();
+
+        expect(
+          attachments,
+          [
+            const v3.AttachmentsData(
+              id: 'a1',
+              ownerType: 'shift',
+              ownerId: 's1',
+              name: 'photo.jpg',
+              path: 's1/a1_photo.jpg',
+              size: 1024,
+              createdAt: _updatedAt,
+            ),
+          ],
+        );
       },
     );
   });

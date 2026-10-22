@@ -10,6 +10,7 @@ import '../../../../core/widgets/group_card.dart';
 import '../../../../core/widgets/section_label.dart';
 import '../../../../data/data_providers.dart';
 import '../../../../domain/models/attachment.dart';
+import '../../../../domain/models/attachment_owner.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../attachments_providers.dart';
 import 'attachment_add_button.dart';
@@ -17,9 +18,9 @@ import 'attachment_pickers.dart';
 import 'attachment_tile.dart';
 
 class AttachmentsSection extends ConsumerStatefulWidget {
-  const AttachmentsSection({required this.shiftId, super.key});
+  const AttachmentsSection({required this.owner, super.key});
 
-  final String shiftId;
+  final AttachmentOwner owner;
 
   @override
   ConsumerState<AttachmentsSection> createState() {
@@ -42,11 +43,11 @@ class _AttachmentsSectionState extends ConsumerState<AttachmentsSection> {
       final repository = ref.read(attachmentsRepositoryProvider);
 
       for (final file in files.take(remaining)) {
-        await repository.add(widget.shiftId, file);
+        await repository.add(widget.owner, file);
       }
 
       if (files.isNotEmpty) {
-        talker.info('Attached ${files.length} file(s) to shift ${widget.shiftId}');
+        talker.info('Attached ${files.length} file(s) to ${widget.owner}');
       }
     } on Exception catch (error, stack) {
       talker.handle(error, stack, 'Attach failed');
@@ -90,8 +91,8 @@ class _AttachmentsSectionState extends ConsumerState<AttachmentsSection> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final p = context.palette;
-    final attachments = ref.watch(shiftAttachmentsProvider(widget.shiftId)).value ?? const [];
-    final remaining = Attachment.maxPerShift - attachments.length;
+    final attachments = ref.watch(attachmentsProvider(widget.owner)).value ?? const [];
+    final remaining = Attachment.maxPerOwner - attachments.length;
     final canAdd = remaining > 0 && !_busy;
 
     return Column(
@@ -100,7 +101,7 @@ class _AttachmentsSectionState extends ConsumerState<AttachmentsSection> {
         SectionLabel(
           l.attachments,
           trailing: Text(
-            l.attachmentsCount(attachments.length, Attachment.maxPerShift),
+            l.attachmentsCount(attachments.length, Attachment.maxPerOwner),
             style: TextStyle(fontSize: 13, color: p.textSecondary),
           ),
         ),
@@ -153,7 +154,7 @@ class _AttachmentsSectionState extends ConsumerState<AttachmentsSection> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      l.attachmentsLimit(Attachment.maxPerShift),
+                      l.attachmentsLimit(Attachment.maxPerOwner),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: p.textSecondary),
                     ),

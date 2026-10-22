@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../core/id.dart';
 import '../../domain/models/attachment.dart';
+import '../../domain/models/attachment_owner.dart';
+import '../../domain/models/attachment_owner_type.dart';
 import '../../domain/repositories/attachments_repository.dart';
 import '../database/app_database.dart';
 
@@ -21,31 +23,31 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
   }
 
   @override
-  Stream<List<Attachment>> watchForShift(String shiftId) {
+  Stream<List<Attachment>> watchFor(AttachmentOwner owner) {
     final query = _db.select(_db.attachments)
-      ..where((a) => a.shiftId.equals(shiftId))
+      ..where((a) => a.ownerType.equals(owner.type.name) & a.ownerId.equals(owner.id))
       ..orderBy([(a) => OrderingTerm(expression: a.createdAt)]);
 
     return query.watch().map((rows) => rows.map(_toDomain).toList());
   }
 
   @override
-  Future<Attachment> add(String shiftId, XFile file) async {
+  Future<Attachment> add(AttachmentOwner owner, XFile file) async {
     final count = _db.attachments.id.count();
     final existing =
         await (_db.selectOnly(_db.attachments)
               ..addColumns([count])
-              ..where(_db.attachments.shiftId.equals(shiftId)))
+              ..where(_db.attachments.ownerType.equals(owner.type.name) & _db.attachments.ownerId.equals(owner.id)))
             .map((row) => row.read(count)!)
             .getSingle();
 
-    if (existing >= Attachment.maxPerShift) {
-      throw StateError('Attachment limit (${Attachment.maxPerShift}) reached');
+    if (existing >= Attachment.maxPerOwner) {
+      throw StateError('Attachment limit (${Attachment.maxPerOwner}) reached');
     }
 
     final id = newId();
     final name = file.name.isEmpty ? p.basename(file.path) : file.name;
-    final relative = p.join(shiftId, '${id}_${_safeFileName(name)}');
+    final relative = p.join(owner.id, '${id}_${_safeFileName(name)}');
     final target = File(p.join((await _root()).path, relative));
 
     await target.parent.create(recursive: true);
@@ -53,7 +55,7 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
 
     final attachment = Attachment(
       id: id,
-      shiftId: shiftId,
+      owner: owner,
       name: name,
       path: relative,
       size: await target.length(),
@@ -65,7 +67,8 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
         .insert(
           AttachmentsCompanion.insert(
             id: attachment.id,
-            shiftId: shiftId,
+            ownerType: owner.type.name,
+            ownerId: owner.id,
             name: attachment.name,
             path: attachment.path,
             size: attachment.size,
@@ -87,19 +90,42 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
   }
 
   @override
+  Future<void> deleteForOwner(AttachmentOwner owner) {
+    return deleteForOwners(owner.type, [owner.id]);
+  }
+
+  @override
+  Future<void> deleteOrphans() async {
+    final shiftIds = _db.selectOnly(_db.shifts)..addColumns([_db.shifts.id]);
+    final eventIds = _db.selectOnly(_db.events)..addColumns([_db.events.id]);
+    final orphans =
+        await (_db.select(_db.attachments)..where(
+              (a) =>
+                  (a.ownerType.equals(AttachmentOwnerType.shift.name) & a.ownerId.isNotInQuery(shiftIds)) |
+                  (a.ownerType.equals(AttachmentOwnerType.event.name) & a.ownerId.isNotInQuery(eventIds)),
+            ))
+            .get();
+    final owners = {for (final row in orphans) _ownerOf(row)};
+
+    for (final owner in owners) {
+      await deleteForOwner(owner);
+    }
+  }
+
+  @override
   Future<String> resolvePath(Attachment attachment) async {
     return p.join((await _root()).path, attachment.path);
   }
 
-  Future<void> deleteForShifts(List<String> shiftIds) async {
-    if (shiftIds.isEmpty) {
+  Future<void> deleteForOwners(AttachmentOwnerType type, List<String> ownerIds) async {
+    if (ownerIds.isEmpty) {
       return;
     }
 
-    await (_db.delete(_db.attachments)..where((a) => a.shiftId.isIn(shiftIds))).go();
+    await (_db.delete(_db.attachments)..where((a) => a.ownerType.equals(type.name) & a.ownerId.isIn(ownerIds))).go();
     final root = await _root();
 
-    for (final id in shiftIds) {
+    for (final id in ownerIds) {
       final dir = Directory(p.join(root.path, id));
 
       if (await dir.exists()) {
@@ -112,10 +138,14 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
     return name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
   }
 
+  AttachmentOwner _ownerOf(AttachmentRow row) {
+    return AttachmentOwner(AttachmentOwnerType.values.byName(row.ownerType), row.ownerId);
+  }
+
   Attachment _toDomain(AttachmentRow row) {
     return Attachment(
       id: row.id,
-      shiftId: row.shiftId,
+      owner: _ownerOf(row),
       name: row.name,
       path: row.path,
       size: row.size,

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../domain/models/attachment_owner_type.dart';
 import '../../domain/models/shift_template.dart';
 import '../../domain/repositories/templates_repository.dart';
 import '../database/app_database.dart';
@@ -56,7 +57,7 @@ class DriftTemplatesRepository implements TemplatesRepository {
               .map((row) => row.read(_db.shifts.id)!)
               .get();
 
-      await _attachments.deleteForShifts(shiftIds);
+      await _attachments.deleteForOwners(AttachmentOwnerType.shift, shiftIds);
       await (_db.delete(_db.shifts)..where((s) => s.templateId.equals(id))).go();
       await (_db.delete(_db.shiftTemplates)..where((t) => t.id.equals(id))).go();
     });

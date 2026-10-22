@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
 import '../../domain/models/attachment.dart';
+import '../../domain/models/attachment_owner.dart';
 
-final shiftAttachmentsProvider = StreamProvider.autoDispose.family<List<Attachment>, String>(
-  (ref, shiftId) => ref.watch(attachmentsRepositoryProvider).watchForShift(shiftId),
-);
+final attachmentsProvider = StreamProvider.autoDispose.family<List<Attachment>, AttachmentOwner>((ref, owner) {
+  return ref.watch(attachmentsRepositoryProvider).watchFor(owner);
+});

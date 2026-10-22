@@ -9,10 +9,13 @@ import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_sheet.dart';
 import '../../core/widgets/inline_text_field.dart';
 import '../../data/data_providers.dart';
+import '../../domain/models/attachment_owner.dart';
 import '../../domain/models/calendar_event.dart';
 import '../../domain/models/pay.dart';
+import '../../domain/repositories/attachments_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../settings/settings_controller.dart';
+import 'widgets/attachments/attachments_section.dart';
 import 'widgets/entry_sheet_header.dart';
 import 'widgets/entry_sheet_layout.dart';
 import 'widgets/notes_card.dart';
@@ -45,15 +48,24 @@ class _EventSheetState extends ConsumerState<EventSheet> {
   late final _location = TextEditingController(text: widget.event.location);
   List<Pay> _suggestions = const [];
   Timer? _debounce;
+  late final AttachmentsRepository _attachments;
+  bool _saved = false;
+
+  AttachmentOwner get _owner => AttachmentOwner.event(_draft.id);
 
   @override
   void initState() {
     super.initState();
+    _attachments = ref.read(attachmentsRepositoryProvider);
     _loadSuggestions();
   }
 
   @override
   void dispose() {
+    if (widget.isNew && !_saved) {
+      unawaited(_attachments.deleteForOwner(_owner));
+    }
+
     _debounce?.cancel();
     _title.dispose();
     _notes.dispose();
@@ -90,6 +102,7 @@ class _EventSheetState extends ConsumerState<EventSheet> {
     );
 
     await ref.read(scheduleRepositoryProvider).upsertEvent(event);
+    _saved = true;
     talker.info('Event saved: ${event.id} "${event.title}" ${event.pay}');
 
     if (mounted) {
@@ -156,6 +169,7 @@ class _EventSheetState extends ConsumerState<EventSheet> {
         ),
         const SizedBox(height: 12),
         NotesCard(notes: _notes, location: _location),
+        AttachmentsSection(owner: _owner),
       ],
     );
   }

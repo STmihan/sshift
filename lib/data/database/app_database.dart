@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../../domain/models/attachment_owner_type.dart';
+
 import 'app_database.steps.dart';
 import 'tables/attachments_table.dart';
 import 'tables/events_table.dart';
@@ -14,7 +16,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'sshift'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -22,6 +24,20 @@ class AppDatabase extends _$AppDatabase {
       from1To2: (m, schema) async {
         await m.createTable(schema.attachments);
         await m.createIndex(schema.attachmentsShift);
+      },
+      from2To3: (m, schema) async {
+        await customStatement('DROP INDEX IF EXISTS attachments_shift');
+        await m.alterTable(
+          TableMigration(
+            schema.attachments,
+            columnTransformer: {
+              schema.attachments.ownerType: Constant(AttachmentOwnerType.shift.name),
+              schema.attachments.ownerId: const CustomExpression<String>('shift_id'),
+            },
+            newColumns: [schema.attachments.ownerType, schema.attachments.ownerId],
+          ),
+        );
+        await m.createIndex(schema.attachmentsOwner);
       },
     ),
   );
