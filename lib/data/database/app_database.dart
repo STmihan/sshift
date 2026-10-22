@@ -1,8 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
-import '../../domain/models/attachment_owner_type.dart';
-
 import 'app_database.steps.dart';
 import 'tables/attachments_table.dart';
 import 'tables/events_table.dart';
@@ -31,7 +29,7 @@ class AppDatabase extends _$AppDatabase {
           TableMigration(
             schema.attachments,
             columnTransformer: {
-              schema.attachments.ownerType: Constant(AttachmentOwnerType.shift.name),
+              schema.attachments.ownerType: const Constant('shift'),
               schema.attachments.ownerId: const CustomExpression<String>('shift_id'),
             },
             newColumns: [schema.attachments.ownerType, schema.attachments.ownerId],

@@ -32,6 +32,8 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   static const _hiddenOffset = -120.0;
 
+  final _startedAt = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +52,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   Future<void> _deleteOrphanedAttachments() async {
     try {
-      await ref.read(attachmentsRepositoryProvider).deleteOrphans();
+      await ref.read(attachmentsRepositoryProvider).deleteOrphans(createdBefore: _startedAt);
     } on Exception catch (error, stack) {
       talker.handle(error, stack, 'Orphaned attachments cleanup failed');
     }

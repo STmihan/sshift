@@ -184,4 +184,56 @@ void main() {
       },
     );
   });
+
+  test('users on schema v2 keep shifts and attachments when updating to v4', () async {
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 4,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v4.DatabaseAtV4.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch
+          ..insert(
+            oldDb.shifts,
+            const v2.ShiftsData(
+              id: 's1',
+              templateId: 't1',
+              day: 20261022,
+              allDay: 0,
+              startMinute: 600,
+              endMinute: 1260,
+              breakMinutes: 0,
+              notes: 'Notes',
+              location: '',
+              payType: 1,
+              payAmount: 350000,
+              updatedAt: _updatedAt,
+            ),
+          )
+          ..insert(
+            oldDb.attachments,
+            const v2.AttachmentsData(
+              id: 'a1',
+              shiftId: 's1',
+              name: 'photo.jpg',
+              path: 's1/a1_photo.jpg',
+              size: 1024,
+              createdAt: _updatedAt,
+            ),
+          );
+      },
+      validateItems: (newDb) async {
+        final shift = (await newDb.select(newDb.shifts).get()).single;
+        final attachment = (await newDb.select(newDb.attachments).get()).single;
+
+        expect(shift.payAmount, 350000);
+        expect(shift.notes, 'Notes');
+        expect(shift.reminderOffset, isNull);
+        expect(attachment.ownerType, 'shift');
+        expect(attachment.ownerId, 's1');
+        expect(attachment.path, 's1/a1_photo.jpg');
+      },
+    );
+  });
 }

@@ -5,6 +5,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../core/logger.dart';
 import '../../domain/models/scheduled_reminder.dart';
 import '../../domain/services/reminder_notifier.dart';
 
@@ -25,10 +26,7 @@ class LocalReminderNotifier implements ReminderNotifier {
     }
 
     try {
-      tz.initializeTimeZones();
-      final zone = await FlutterTimezone.getLocalTimezone();
-
-      tz.setLocalLocation(tz.getLocation(zone.identifier));
+      await _setLocalTimezone();
       await _plugin.initialize(
         settings: const InitializationSettings(android: AndroidInitializationSettings(_icon)),
         onDidReceiveNotificationResponse: (response) {
@@ -87,6 +85,19 @@ class LocalReminderNotifier implements ReminderNotifier {
   Future<void> cancelAll() async {
     await _ready.future;
     await _plugin.cancelAllPendingNotifications();
+  }
+
+  Future<void> _setLocalTimezone() async {
+    tz.initializeTimeZones();
+
+    try {
+      final zone = await FlutterTimezone.getLocalTimezone();
+
+      tz.setLocalLocation(tz.getLocation(zone.identifier));
+    } on Exception catch (error, stack) {
+      talker.handle(error, stack, 'Local timezone is unknown, scheduling in UTC');
+      tz.setLocalLocation(tz.UTC);
+    }
   }
 
   void _open(String? payload, void Function(int dayKey) onOpenDay) {

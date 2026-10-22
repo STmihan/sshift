@@ -22,6 +22,7 @@ class ReminderSync extends Notifier<void> {
 
   Timer? _timer;
   late DayRange _range;
+  Future<void> _running = Future.value();
 
   @override
   void build() {
@@ -38,7 +39,9 @@ class ReminderSync extends Notifier<void> {
 
   void _schedule() {
     _timer?.cancel();
-    _timer = Timer(_debounce, () => unawaited(_sync()));
+    _timer = Timer(_debounce, () {
+      _running = _running.then((_) => _sync());
+    });
   }
 
   Future<void> _sync() async {
@@ -77,7 +80,7 @@ class ReminderSync extends Notifier<void> {
               id: index,
               at: reminder.at,
               title: texts.title(reminder),
-              body: texts.body(reminder, now),
+              body: texts.body(reminder),
               dayKey: dayKey(reminder.day),
             ),
         ],

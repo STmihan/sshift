@@ -12,7 +12,7 @@ abstract interface class AttachmentsRepository {
 
   Future<void> deleteForOwner(AttachmentOwner owner);
 
-  Future<void> deleteOrphans();
+  Future<void> deleteOrphans({required DateTime createdBefore});
 
   Future<String> resolvePath(Attachment attachment);
 }

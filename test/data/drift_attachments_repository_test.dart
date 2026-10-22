@@ -71,10 +71,18 @@ void main() {
     await attachments.add(const AttachmentOwner.event('saved'), await source('a.jpg'));
     await attachments.add(const AttachmentOwner.event('draft'), await source('b.jpg'));
 
-    await attachments.deleteOrphans();
+    await attachments.deleteOrphans(createdBefore: DateTime.now().add(const Duration(minutes: 1)));
 
     expect(await attachments.watchFor(const AttachmentOwner.event('saved')).first, hasLength(1));
     expect(await attachments.watchFor(const AttachmentOwner.event('draft')).first, isEmpty);
     expect(await Directory(p.join(root.path, 'draft')).exists(), isFalse);
+  });
+
+  test('deleteOrphans keeps attachments created after the cutoff', () async {
+    await attachments.add(const AttachmentOwner.event('draft'), await source('c.jpg'));
+
+    await attachments.deleteOrphans(createdBefore: DateTime.now().subtract(const Duration(minutes: 1)));
+
+    expect(await attachments.watchFor(const AttachmentOwner.event('draft')).first, hasLength(1));
   });
 }

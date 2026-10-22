@@ -39,9 +39,9 @@ class ReminderTexts {
     return title == null || title.isEmpty ? _l.shift : title;
   }
 
-  String body(PendingReminder reminder, DateTime now) {
-    final span = reminder.allDay ? _l.allDay : '${_time(reminder.startMinute)} – ${_time(reminder.endMinute)}';
-    final daysAway = dateOnly(reminder.day).difference(dateOnly(now)).inDays;
+  String body(PendingReminder reminder) {
+    final span = reminder.allDay ? _l.allDay : '${_time(reminder.startMinute)} - ${_time(reminder.endMinute)}';
+    final daysAway = dateOnly(reminder.day).difference(dateOnly(reminder.at)).inDays;
 
     return switch (daysAway) {
       0 => _l.reminderToday(span),

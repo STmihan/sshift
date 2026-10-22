@@ -95,14 +95,15 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
   }
 
   @override
-  Future<void> deleteOrphans() async {
+  Future<void> deleteOrphans({required DateTime createdBefore}) async {
     final shiftIds = _db.selectOnly(_db.shifts)..addColumns([_db.shifts.id]);
     final eventIds = _db.selectOnly(_db.events)..addColumns([_db.events.id]);
     final orphans =
         await (_db.select(_db.attachments)..where(
               (a) =>
-                  (a.ownerType.equals(AttachmentOwnerType.shift.name) & a.ownerId.isNotInQuery(shiftIds)) |
-                  (a.ownerType.equals(AttachmentOwnerType.event.name) & a.ownerId.isNotInQuery(eventIds)),
+                  a.createdAt.isSmallerThanValue(createdBefore) &
+                  ((a.ownerType.equals(AttachmentOwnerType.shift.name) & a.ownerId.isNotInQuery(shiftIds)) |
+                      (a.ownerType.equals(AttachmentOwnerType.event.name) & a.ownerId.isNotInQuery(eventIds))),
             ))
             .get();
     final owners = {for (final row in orphans) _ownerOf(row)};
