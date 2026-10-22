@@ -4,17 +4,18 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'app_database.steps.dart';
 import 'tables/attachments_table.dart';
 import 'tables/events_table.dart';
+import 'tables/settings_table.dart';
 import 'tables/shift_templates_table.dart';
 import 'tables/shifts_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [ShiftTemplates, Shifts, Events, Attachments])
+@DriftDatabase(tables: [ShiftTemplates, Shifts, Events, Attachments, Settings])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'sshift'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,6 +42,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(schema.shiftTemplates, schema.shiftTemplates.reminderOffset);
         await m.addColumn(schema.shifts, schema.shifts.reminderOffset);
         await m.addColumn(schema.events, schema.events.reminderOffset);
+      },
+      from4To5: (m, schema) async {
+        await m.createTable(schema.settings);
       },
     ),
   );

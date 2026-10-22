@@ -1,34 +1,32 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../domain/models/app_update.dart';
 import '../../domain/repositories/update_preferences_repository.dart';
 import '../mappers/app_update_json_mapper.dart';
+import '../settings/settings_store.dart';
 
-class PrefsUpdatePreferencesRepository implements UpdatePreferencesRepository {
-  PrefsUpdatePreferencesRepository(this._prefs);
+class StoredUpdatePreferencesRepository implements UpdatePreferencesRepository {
+  StoredUpdatePreferencesRepository(this._store);
 
   static const _lastCheckAt = 'updatesLastCheckAt';
   static const _skippedVersion = 'updatesSkippedVersion';
   static const _cachedUpdate = 'updatesCachedUpdate';
-  static const keys = {_lastCheckAt, _skippedVersion, _cachedUpdate};
 
-  final SharedPreferencesWithCache _prefs;
+  final SettingsStore _store;
 
   @override
   DateTime? get lastCheckAt {
-    final millis = _prefs.getInt(_lastCheckAt);
+    final millis = _store.getInt(_lastCheckAt);
 
     return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
   @override
-  String? get skippedVersion => _prefs.getString(_skippedVersion);
+  String? get skippedVersion => _store.getString(_skippedVersion);
 
   @override
   AppUpdate? get cachedUpdate {
-    final raw = _prefs.getString(_cachedUpdate);
+    final raw = _store.getString(_cachedUpdate);
 
     if (raw == null) {
       return null;
@@ -43,20 +41,20 @@ class PrefsUpdatePreferencesRepository implements UpdatePreferencesRepository {
 
   @override
   Future<void> markChecked(DateTime time) {
-    return _prefs.setInt(_lastCheckAt, time.millisecondsSinceEpoch);
+    return _store.setInt(_lastCheckAt, time.millisecondsSinceEpoch);
   }
 
   @override
   Future<void> skipVersion(String version) {
-    return _prefs.setString(_skippedVersion, version);
+    return _store.setString(_skippedVersion, version);
   }
 
   @override
   Future<void> cacheUpdate(AppUpdate? update) {
     if (update == null) {
-      return _prefs.remove(_cachedUpdate);
+      return _store.remove(_cachedUpdate);
     }
 
-    return _prefs.setString(_cachedUpdate, jsonEncode(appUpdateToJson(update)));
+    return _store.setString(_cachedUpdate, jsonEncode(appUpdateToJson(update)));
   }
 }

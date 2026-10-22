@@ -8,6 +8,7 @@ import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
+import 'generated/schema_v5.dart' as v5;
 
 const _updatedAt = 1792000000;
 
@@ -233,6 +234,44 @@ void main() {
         expect(attachment.ownerType, 'shift');
         expect(attachment.ownerId, 's1');
         expect(attachment.path, 's1/a1_photo.jpg');
+      },
+    );
+  });
+
+  test('users on schema v4 keep their data and get an empty settings table', () async {
+    await verifier.testWithDataIntegrity(
+      oldVersion: 4,
+      newVersion: 5,
+      createOld: v4.DatabaseAtV4.new,
+      createNew: v5.DatabaseAtV5.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insert(
+          oldDb.shiftTemplates,
+          const v4.ShiftTemplatesData(
+            id: 't1',
+            title: 'Day',
+            icon: 'D',
+            color: 0xFFB0416E,
+            allDay: 0,
+            startMinute: 600,
+            endMinute: 1260,
+            breakMinutes: 30,
+            payType: 1,
+            payAmount: 350000,
+            location: 'Office',
+            sortOrder: 0,
+            updatedAt: _updatedAt,
+            reminderOffset: -60,
+          ),
+        );
+      },
+      validateItems: (newDb) async {
+        final template = (await newDb.select(newDb.shiftTemplates).get()).single;
+
+        expect(template.title, 'Day');
+        expect(template.reminderOffset, -60);
+        expect(await newDb.select(newDb.settings).get(), isEmpty);
       },
     );
   });
