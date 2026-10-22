@@ -23,7 +23,7 @@ import '../../domain/models/time_format.dart';
 import '../../l10n/app_localizations.dart';
 import '../updates/update_sheet.dart';
 import '../updates/updates_controller.dart';
-import '../updates/widgets/update_badge.dart';
+import '../updates/widgets/update_available_row.dart';
 import 'settings_controller.dart';
 import 'widgets/chevron.dart';
 import 'widgets/external_link_icon.dart';
@@ -218,6 +218,11 @@ class SettingsScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     GroupCard(
                       children: [
+                        if (available != null)
+                          UpdateAvailableRow(
+                            update: available,
+                            onTap: () => showUpdateSheet(context, available),
+                          ),
                         SwitchRow(
                           label: l.autoCheckUpdates,
                           value: settings.autoCheckUpdates,
@@ -233,8 +238,6 @@ class SettingsScreen extends ConsumerWidget {
                                   height: 18,
                                   child: CircularProgressIndicator(strokeWidth: 2, color: p.textSecondary),
                                 )
-                              : available != null
-                              ? UpdateBadge(version: available.version)
                               : const Chevron(),
                           onTap: updates.checking ? null : checkForUpdates,
                         ),

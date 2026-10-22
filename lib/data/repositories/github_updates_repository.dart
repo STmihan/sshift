@@ -13,16 +13,26 @@ import '../../domain/repositories/updates_repository.dart';
 import '../mappers/github_release_mapper.dart';
 
 class GithubUpdatesRepository implements UpdatesRepository {
+  GithubUpdatesRepository({Future<Directory> Function()? downloadsDirectory})
+    : _downloadsDirectory = downloadsDirectory ?? _defaultDownloadsDirectory;
+
   static const _headers = {
     'Accept': 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
   };
   static const _progressSteps = 200;
+  static const _partialSuffix = '.part';
 
-  Future<Directory> get _downloadsDirectory async {
+  final Future<Directory> Function() _downloadsDirectory;
+
+  static Future<Directory> _defaultDownloadsDirectory() async {
     final temp = await getTemporaryDirectory();
 
     return Directory(p.join(temp.path, 'updates'));
+  }
+
+  static String _fileName(AppUpdate update) {
+    return 'sshift-${update.version}.apk';
   }
 
   @override
@@ -47,10 +57,11 @@ class GithubUpdatesRepository implements UpdatesRepository {
 
     Future<void> download() async {
       try {
-        final directory = await _downloadsDirectory;
+        final directory = await _downloadsDirectory();
 
         await directory.create(recursive: true);
-        final file = File(p.join(directory.path, 'sshift-${update.version}.apk'));
+        final target = File(p.join(directory.path, _fileName(update)));
+        final partial = File('${target.path}$_partialSuffix');
         final response = await client.send(http.Request('GET', Uri.parse(update.apkUrl)));
 
         if (response.statusCode != HttpStatus.ok) {
@@ -59,7 +70,7 @@ class GithubUpdatesRepository implements UpdatesRepository {
 
         final total = response.contentLength ?? update.apkSize;
         final step = total > 0 ? total ~/ _progressSteps : 0;
-        final sink = file.openWrite();
+        final sink = partial.openWrite();
         var received = 0;
         var reported = 0;
 
@@ -77,7 +88,12 @@ class GithubUpdatesRepository implements UpdatesRepository {
           await sink.close();
         }
 
-        controller.add(DownloadProgress(received: received, total: total, filePath: file.path));
+        if (total > 0 && received != total) {
+          throw HttpException('APK download incomplete: $received of $total bytes');
+        }
+
+        await partial.rename(target.path);
+        controller.add(DownloadProgress(received: received, total: total, filePath: target.path));
       } on Exception catch (error, stack) {
         controller.addError(error, stack);
       } finally {
@@ -92,11 +108,37 @@ class GithubUpdatesRepository implements UpdatesRepository {
   }
 
   @override
-  Future<void> clearDownloads() async {
-    final directory = await _downloadsDirectory;
+  Future<String?> findDownloadedApk(AppUpdate update) async {
+    final directory = await _downloadsDirectory();
+    final file = File(p.join(directory.path, _fileName(update)));
 
-    if (await directory.exists()) {
-      await directory.delete(recursive: true);
+    if (!await file.exists()) {
+      return null;
+    }
+
+    if (update.apkSize > 0 && await file.length() != update.apkSize) {
+      await file.delete();
+
+      return null;
+    }
+
+    return file.path;
+  }
+
+  @override
+  Future<void> clearDownloads({AppUpdate? keep}) async {
+    final directory = await _downloadsDirectory();
+
+    if (!await directory.exists()) {
+      return;
+    }
+
+    final kept = keep == null ? null : p.join(directory.path, _fileName(keep));
+
+    await for (final entity in directory.list()) {
+      if (entity.path != kept) {
+        await entity.delete(recursive: true);
+      }
     }
   }
 }

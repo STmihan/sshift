@@ -584,6 +584,12 @@ abstract class AppLocalizations {
   /// **'Check for updates'**
   String get checkForUpdates;
 
+  /// No description provided for @newVersionAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'New version available'**
+  String get newVersionAvailable;
+
   /// No description provided for @upToDate.
   ///
   /// In en, this message translates to:
@@ -626,17 +632,17 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get updateNow;
 
+  /// No description provided for @installUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get installUpdate;
+
   /// No description provided for @updateLater.
   ///
   /// In en, this message translates to:
   /// **'Later'**
   String get updateLater;
-
-  /// No description provided for @skipVersion.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip version'**
-  String get skipVersion;
 
   /// No description provided for @downloadingUpdate.
   ///

@@ -6,5 +6,7 @@ abstract interface class UpdatesRepository {
 
   Stream<DownloadProgress> downloadApk(AppUpdate update);
 
-  Future<void> clearDownloads();
+  Future<String?> findDownloadedApk(AppUpdate update);
+
+  Future<void> clearDownloads({AppUpdate? keep});
 }

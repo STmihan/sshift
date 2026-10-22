@@ -46,6 +46,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final painting = ref.watch(paintModeProvider) != null;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final shell = widget.shell;
+    final hasUpdate = ref.watch(updatesControllerProvider.select((s) => s.available != null));
 
     return Scaffold(
       body: Stack(
@@ -64,6 +65,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                   padding: const EdgeInsets.symmetric(horizontal: navBarSideInset),
                   child: NavBar(
                     index: shell.currentIndex,
+                    settingsBadge: hasUpdate,
                     onTap: (index) {
                       ref.read(paintModeProvider.notifier).stop();
                       shell.goBranch(index, initialLocation: index == shell.currentIndex);

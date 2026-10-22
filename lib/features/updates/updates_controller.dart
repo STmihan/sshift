@@ -20,39 +20,52 @@ class UpdatesController extends Notifier<UpdatesState> {
 
   Future<AppUpdate?> checkOnStartup() async {
     final preferences = ref.read(updatePreferencesRepositoryProvider);
-    final lastCheckAt = preferences.lastCheckAt;
 
     try {
-      await ref.read(updatesRepositoryProvider).clearDownloads();
+      await _restoreCached();
 
-      if (!ref.read(settingsProvider).autoCheckUpdates) {
-        return null;
+      final lastCheckAt = preferences.lastCheckAt;
+      final due = lastCheckAt == null || DateTime.now().difference(lastCheckAt) >= checkInterval;
+
+      if (ref.read(settingsProvider).autoCheckUpdates && due) {
+        await _check();
       }
-
-      if (lastCheckAt != null && DateTime.now().difference(lastCheckAt) < checkInterval) {
-        return null;
-      }
-
-      final update = await _check();
-
-      return update?.version == preferences.skippedVersion ? null : update;
     } on Exception catch (error, stack) {
       talker.handle(error, stack, 'Update check failed');
-
-      return null;
     }
+
+    final update = state.available;
+
+    try {
+      await ref.read(updatesRepositoryProvider).clearDownloads(keep: update);
+    } on Exception catch (error, stack) {
+      talker.handle(error, stack, 'Update downloads cleanup failed');
+    }
+
+    return update == null || update.version == preferences.skippedVersion ? null : update;
   }
 
   Future<AppUpdate?> checkNow() {
     return _check();
   }
 
-  Future<void> skip(AppUpdate update) async {
+  Future<void> postpone(AppUpdate update) async {
     await ref.read(updatePreferencesRepositoryProvider).skipVersion(update.version);
-    talker.info('Update ${update.version} skipped');
+    talker.info('Update ${update.version} postponed');
+  }
+
+  Future<void> _restoreCached() async {
+    final cached = ref.read(updatePreferencesRepositoryProvider).cachedUpdate;
+    final current = await ref.read(appVersionProvider.future);
+
+    if (cached != null && isNewerVersion(cached.version, current)) {
+      state = UpdatesState(available: cached);
+    }
   }
 
   Future<AppUpdate?> _check() async {
+    final preferences = ref.read(updatePreferencesRepositoryProvider);
+
     state = UpdatesState(available: state.available, checking: true);
 
     try {
@@ -60,7 +73,8 @@ class UpdatesController extends Notifier<UpdatesState> {
       final latest = await ref.read(updatesRepositoryProvider).fetchLatest();
       final update = latest != null && isNewerVersion(latest.version, current) ? latest : null;
 
-      await ref.read(updatePreferencesRepositoryProvider).markChecked(DateTime.now());
+      await preferences.markChecked(DateTime.now());
+      await preferences.cacheUpdate(update);
       state = UpdatesState(available: update);
       talker.info('Update check: current $current, latest ${latest?.version}');
 

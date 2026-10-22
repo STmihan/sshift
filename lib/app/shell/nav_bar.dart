@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/theme_context.dart';
 import '../../l10n/app_localizations.dart';
+import 'badged_icon.dart';
 import 'nav_bar_item.dart';
 import 'nav_bar_metrics.dart';
 import 'today_icon.dart';
 
 class NavBar extends StatelessWidget {
-  const NavBar({required this.index, required this.onTap, super.key});
+  const NavBar({required this.index, required this.onTap, this.settingsBadge = false, super.key});
 
   final int index;
   final ValueChanged<int> onTap;
+  final bool settingsBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,13 @@ class NavBar extends StatelessWidget {
       (const TodayIcon(), l.navCalendar),
       (const Icon(Icons.bar_chart_rounded, size: 22), l.navReports),
       (const Icon(Icons.view_agenda_outlined, size: 20), l.navShifts),
-      (const Icon(Icons.settings_rounded, size: 21), l.navSettings),
+      (
+        BadgedIcon(
+          icon: const Icon(Icons.settings_rounded, size: 21),
+          showBadge: settingsBadge,
+        ),
+        l.navSettings,
+      ),
     ];
 
     return Container(

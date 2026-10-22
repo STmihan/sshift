@@ -321,6 +321,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get checkForUpdates => 'Проверить обновления';
 
   @override
+  String get newVersionAvailable => 'Доступна новая версия';
+
+  @override
   String get upToDate => 'У вас последняя версия';
 
   @override
@@ -344,10 +347,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateNow => 'Обновить';
 
   @override
-  String get updateLater => 'Позже';
+  String get installUpdate => 'Установить';
 
   @override
-  String get skipVersion => 'Пропустить версию';
+  String get updateLater => 'Позже';
 
   @override
   String get downloadingUpdate => 'Загрузка…';

@@ -44,9 +44,26 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> {
 
   StreamSubscription<DownloadProgress>? _download;
   DownloadProgress? _progress;
+  String? _downloadedPath;
   String? _error;
 
   bool get _downloading => _download != null;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_findDownloaded());
+  }
+
+  Future<void> _findDownloaded() async {
+    final path = await ref.read(updatesRepositoryProvider).findDownloadedApk(widget.update);
+
+    if (mounted && path != null) {
+      setState(() {
+        _downloadedPath = path;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -55,6 +72,15 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> {
   }
 
   void _start() {
+    final downloaded = _downloadedPath;
+
+    if (downloaded != null) {
+      talker.info('Update ${widget.update.version} already downloaded, installing');
+      unawaited(_install(downloaded));
+
+      return;
+    }
+
     setState(() {
       _error = null;
       _progress = null;
@@ -77,6 +103,7 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> {
       return;
     }
 
+    _downloadedPath = path;
     unawaited(_install(path));
   }
 
@@ -123,10 +150,10 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> {
     talker.info('Update download cancelled');
   }
 
-  Future<void> _skip() async {
+  Future<void> _postpone() async {
     final navigator = Navigator.of(context);
 
-    await ref.read(updatesControllerProvider.notifier).skip(widget.update);
+    await ref.read(updatesControllerProvider.notifier).postpone(widget.update);
     navigator.pop();
   }
 
@@ -185,28 +212,16 @@ class _UpdateSheetState extends ConsumerState<UpdateSheet> {
                 const SizedBox(height: 12),
               ],
               PillButton(
-                label: error == null ? l.updateNow : l.retry,
+                label: error != null
+                    ? l.retry
+                    : _downloadedPath != null
+                    ? l.installUpdate
+                    : l.updateNow,
                 icon: Icons.system_update_alt_rounded,
                 onTap: _start,
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: PillButton(
-                      label: l.updateLater,
-                      filled: false,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: PillButton(label: l.skipVersion, filled: false, onTap: _skip),
-                  ),
-                ],
-              ),
+              PillButton(label: l.updateLater, filled: false, onTap: _postpone),
             ],
           ],
         ),

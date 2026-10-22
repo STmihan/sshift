@@ -313,6 +313,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkForUpdates => 'Check for updates';
 
   @override
+  String get newVersionAvailable => 'New version available';
+
+  @override
   String get upToDate => 'You have the latest version';
 
   @override
@@ -336,10 +339,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateNow => 'Update';
 
   @override
-  String get updateLater => 'Later';
+  String get installUpdate => 'Install';
 
   @override
-  String get skipVersion => 'Skip version';
+  String get updateLater => 'Later';
 
   @override
   String get downloadingUpdate => 'Downloading…';
