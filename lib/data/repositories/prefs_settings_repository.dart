@@ -14,7 +14,8 @@ class PrefsSettingsRepository implements SettingsRepository {
   static const _firstDay = 'firstDayOfWeek';
   static const _timeFormat = 'timeFormat';
   static const _autoCheckUpdates = 'autoCheckUpdates';
-  static const keys = {_language, _theme, _currency, _firstDay, _timeFormat, _autoCheckUpdates};
+  static const _notificationsEnabled = 'notificationsEnabled';
+  static const keys = {_language, _theme, _currency, _firstDay, _timeFormat, _autoCheckUpdates, _notificationsEnabled};
 
   final SharedPreferencesWithCache _prefs;
 
@@ -31,6 +32,7 @@ class PrefsSettingsRepository implements SettingsRepository {
       firstDayOfWeek: _prefs.getInt(_firstDay),
       timeFormat: TimeFormat.values.firstWhere((f) => f.name == timeFormat, orElse: () => TimeFormat.system),
       autoCheckUpdates: _prefs.getBool(_autoCheckUpdates) ?? true,
+      notificationsEnabled: _prefs.getBool(_notificationsEnabled) ?? true,
     );
   }
 
@@ -45,5 +47,6 @@ class PrefsSettingsRepository implements SettingsRepository {
     await _prefs.setString(_currency, settings.currency);
     await _prefs.setString(_timeFormat, settings.timeFormat.name);
     await _prefs.setBool(_autoCheckUpdates, settings.autoCheckUpdates);
+    await _prefs.setBool(_notificationsEnabled, settings.notificationsEnabled);
   }
 }

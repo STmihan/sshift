@@ -310,6 +310,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logs => 'Logs';
 
   @override
+  String get notifications => 'Reminder notifications';
+
+  @override
+  String get notificationsDenied => 'Notifications are turned off for SShift in system settings';
+
+  @override
+  String get remindersChannel => 'Reminders';
+
+  @override
+  String get reminder => 'Reminder';
+
+  @override
+  String get reminderTime => 'Reminder time';
+
+  @override
+  String get reminderAtStart => 'At start time';
+
+  @override
+  String reminderMinutesBefore(int minutes) {
+    return '$minutes min before';
+  }
+
+  @override
+  String reminderHoursBefore(int hours) {
+    return '$hours h before';
+  }
+
+  @override
+  String get reminderDayBefore => '1 day before';
+
+  @override
+  String get reminderOnDay => 'On the day';
+
+  @override
+  String get reminderAllDayDayBefore => 'The day before';
+
+  @override
+  String reminderToday(String span) {
+    return 'Today, $span';
+  }
+
+  @override
+  String reminderTomorrow(String span) {
+    return 'Tomorrow, $span';
+  }
+
+  @override
+  String reminderOnDate(String date, String span) {
+    return '$date, $span';
+  }
+
+  @override
   String get autoCheckUpdates => 'Check for updates automatically';
 
   @override

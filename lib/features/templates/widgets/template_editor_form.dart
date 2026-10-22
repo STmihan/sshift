@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,6 +21,7 @@ import '../../../domain/models/shift_template.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../entries/widgets/pay/pay_editor.dart';
 import '../../entries/widgets/time_fields.dart';
+import '../../reminders/reminder_permission.dart';
 import '../../settings/settings_controller.dart';
 import 'color_picker.dart';
 
@@ -171,10 +174,25 @@ class _TemplateEditorFormState extends ConsumerState<TemplateEditorForm> {
                         startMinute: _draft.startMinute,
                         endMinute: _draft.endMinute,
                         breakMinutes: _draft.breakMinutes,
-                        onAllDay: (value) => _edit((t) => t.copyWith(allDay: value)),
+                        onAllDay: (value) {
+                          _edit(
+                            (t) => t.copyWith(
+                              allDay: value,
+                              reminder: () => t.reminder?.convertedFor(allDay: value),
+                            ),
+                          );
+                        },
                         onStart: (value) => _edit((t) => t.copyWith(startMinute: value)),
                         onEnd: (value) => _edit((t) => t.copyWith(endMinute: value)),
                         onBreak: (value) => _edit((t) => t.copyWith(breakMinutes: value)),
+                        reminder: _draft.reminder,
+                        onReminder: (value) {
+                          _edit((t) => t.copyWith(reminder: () => value));
+
+                          if (value != null) {
+                            unawaited(requestReminderPermission(context, ref));
+                          }
+                        },
                       ),
                       SectionLabel(l.defaultPay),
                       PayEditor(

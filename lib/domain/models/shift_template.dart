@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'pay.dart';
+import 'reminder.dart';
 import 'time_span.dart';
 
 @immutable
@@ -18,6 +19,7 @@ class ShiftTemplate with TimeSpan {
     this.defaultPay = Pay.none,
     this.location = '',
     this.sortOrder = 0,
+    this.reminder,
   });
 
   final String id;
@@ -33,6 +35,7 @@ class ShiftTemplate with TimeSpan {
   @override
   final int breakMinutes;
   final Pay defaultPay;
+  final Reminder? reminder;
   final String location;
   final int sortOrder;
   final DateTime updatedAt;
@@ -46,6 +49,7 @@ class ShiftTemplate with TimeSpan {
     int? endMinute,
     int? breakMinutes,
     Pay? defaultPay,
+    Reminder? Function()? reminder,
     String? location,
     int? sortOrder,
     DateTime? updatedAt,
@@ -60,6 +64,7 @@ class ShiftTemplate with TimeSpan {
       endMinute: endMinute ?? this.endMinute,
       breakMinutes: breakMinutes ?? this.breakMinutes,
       defaultPay: defaultPay ?? this.defaultPay,
+      reminder: reminder != null ? reminder() : this.reminder,
       location: location ?? this.location,
       sortOrder: sortOrder ?? this.sortOrder,
       updatedAt: updatedAt ?? this.updatedAt,

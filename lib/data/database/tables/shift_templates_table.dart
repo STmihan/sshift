@@ -15,6 +15,7 @@ class ShiftTemplates extends Table {
   TextColumn get location => text()();
   IntColumn get sortOrder => integer()();
   DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get reminderOffset => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

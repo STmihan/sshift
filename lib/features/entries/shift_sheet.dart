@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,6 +14,7 @@ import '../../domain/models/attachment_owner.dart';
 import '../../domain/models/pay.dart';
 import '../../domain/models/shift.dart';
 import '../../l10n/app_localizations.dart';
+import '../reminders/reminder_permission.dart';
 import '../settings/settings_controller.dart';
 import '../templates/templates_providers.dart';
 import 'widgets/attachments/attachments_section.dart';
@@ -117,10 +120,25 @@ class _ShiftSheetState extends ConsumerState<ShiftSheet> {
           startMinute: _draft.startMinute,
           endMinute: _draft.endMinute,
           breakMinutes: _draft.breakMinutes,
-          onAllDay: (value) => _edit((s) => s.copyWith(allDay: value)),
+          onAllDay: (value) {
+            _edit(
+              (s) => s.copyWith(
+                allDay: value,
+                reminder: () => s.reminder?.convertedFor(allDay: value),
+              ),
+            );
+          },
           onStart: (value) => _edit((s) => s.copyWith(startMinute: value)),
           onEnd: (value) => _edit((s) => s.copyWith(endMinute: value)),
           onBreak: (value) => _edit((s) => s.copyWith(breakMinutes: value)),
+          reminder: _draft.reminder,
+          onReminder: (value) {
+            _edit((s) => s.copyWith(reminder: () => value));
+
+            if (value != null) {
+              unawaited(requestReminderPermission(context, ref));
+            }
+          },
         ),
         PaySectionLabel(earned: _draft.earned, currency: currency),
         PayEditor(

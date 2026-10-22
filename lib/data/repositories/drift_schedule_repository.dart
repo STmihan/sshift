@@ -9,6 +9,7 @@ import '../../domain/models/shift.dart';
 import '../../domain/repositories/schedule_repository.dart';
 import '../database/app_database.dart';
 import '../mappers/pay_mapper.dart';
+import '../mappers/reminder_mapper.dart';
 import 'drift_attachments_repository.dart';
 
 class DriftScheduleRepository implements ScheduleRepository {
@@ -60,6 +61,7 @@ class DriftScheduleRepository implements ScheduleRepository {
             payType: s.pay.type.index,
             payAmount: s.pay.amount,
             updatedAt: s.updatedAt,
+            reminderOffset: Value(s.reminder?.offsetMinutes),
           ),
         );
   }
@@ -89,6 +91,7 @@ class DriftScheduleRepository implements ScheduleRepository {
             payType: e.pay.type.index,
             payAmount: e.pay.amount,
             updatedAt: e.updatedAt,
+            reminderOffset: Value(e.reminder?.offsetMinutes),
           ),
         );
   }
@@ -151,6 +154,7 @@ class DriftScheduleRepository implements ScheduleRepository {
       location: row.location,
       pay: payFromColumns(row.payType, row.payAmount),
       updatedAt: row.updatedAt,
+      reminder: reminderFromColumn(row.reminderOffset),
     );
   }
 
@@ -166,6 +170,7 @@ class DriftScheduleRepository implements ScheduleRepository {
       location: row.location,
       pay: payFromColumns(row.payType, row.payAmount),
       updatedAt: row.updatedAt,
+      reminder: reminderFromColumn(row.reminderOffset),
     );
   }
 }

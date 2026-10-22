@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'pay.dart';
+import 'reminder.dart';
 import 'time_span.dart';
 
 @immutable
@@ -17,6 +18,7 @@ class Shift with TimeSpan {
     this.notes = '',
     this.location = '',
     this.pay = Pay.none,
+    this.reminder,
   });
 
   final String id;
@@ -33,6 +35,7 @@ class Shift with TimeSpan {
   final String notes;
   final String location;
   final Pay pay;
+  final Reminder? reminder;
   final DateTime updatedAt;
 
   int get earned => pay.totalFor(workedMinutes);
@@ -45,6 +48,7 @@ class Shift with TimeSpan {
     String? notes,
     String? location,
     Pay? pay,
+    Reminder? Function()? reminder,
     DateTime? updatedAt,
   }) {
     return Shift(
@@ -58,6 +62,7 @@ class Shift with TimeSpan {
       notes: notes ?? this.notes,
       location: location ?? this.location,
       pay: pay ?? this.pay,
+      reminder: reminder != null ? reminder() : this.reminder,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

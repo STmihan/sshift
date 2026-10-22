@@ -16,6 +16,7 @@ class Shifts extends Table {
   IntColumn get payType => integer()();
   IntColumn get payAmount => integer()();
   DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get reminderOffset => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

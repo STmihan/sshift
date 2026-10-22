@@ -11,6 +11,7 @@ class AppSettings {
     this.firstDayOfWeek,
     this.timeFormat = TimeFormat.system,
     this.autoCheckUpdates = true,
+    this.notificationsEnabled = true,
   });
 
   static const defaultCurrency = 'RUB';
@@ -22,6 +23,7 @@ class AppSettings {
   final int? firstDayOfWeek;
   final TimeFormat timeFormat;
   final bool autoCheckUpdates;
+  final bool notificationsEnabled;
 
   Locale? get locale => languageCode == null ? null : Locale(languageCode!);
 
@@ -32,6 +34,7 @@ class AppSettings {
     int? Function()? firstDayOfWeek,
     TimeFormat? timeFormat,
     bool? autoCheckUpdates,
+    bool? notificationsEnabled,
   }) {
     return AppSettings(
       languageCode: languageCode != null ? languageCode() : this.languageCode,
@@ -40,6 +43,7 @@ class AppSettings {
       firstDayOfWeek: firstDayOfWeek != null ? firstDayOfWeek() : this.firstDayOfWeek,
       timeFormat: timeFormat ?? this.timeFormat,
       autoCheckUpdates: autoCheckUpdates ?? this.autoCheckUpdates,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     );
   }
 }

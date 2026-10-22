@@ -6,11 +6,13 @@ import '../domain/repositories/settings_repository.dart';
 import '../domain/repositories/templates_repository.dart';
 import '../domain/repositories/update_preferences_repository.dart';
 import '../domain/repositories/updates_repository.dart';
+import '../domain/services/reminder_notifier.dart';
 import 'database/app_database.dart';
 import 'repositories/drift_attachments_repository.dart';
 import 'repositories/drift_schedule_repository.dart';
 import 'repositories/drift_templates_repository.dart';
 import 'repositories/github_updates_repository.dart';
+import 'services/local_reminder_notifier.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -46,4 +48,8 @@ final updatesRepositoryProvider = Provider<UpdatesRepository>((ref) {
 
 final updatePreferencesRepositoryProvider = Provider<UpdatePreferencesRepository>((ref) {
   throw UnimplementedError('updatePreferencesRepositoryProvider must be overridden');
+});
+
+final reminderNotifierProvider = Provider<ReminderNotifier>((ref) {
+  return LocalReminderNotifier();
 });

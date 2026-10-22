@@ -5,6 +5,7 @@ import '../../domain/models/shift_template.dart';
 import '../../domain/repositories/templates_repository.dart';
 import '../database/app_database.dart';
 import '../mappers/pay_mapper.dart';
+import '../mappers/reminder_mapper.dart';
 import 'drift_attachments_repository.dart';
 
 class DriftTemplatesRepository implements TemplatesRepository {
@@ -43,6 +44,7 @@ class DriftTemplatesRepository implements TemplatesRepository {
             location: t.location,
             sortOrder: t.sortOrder,
             updatedAt: t.updatedAt,
+            reminderOffset: Value(t.reminder?.offsetMinutes),
           ),
         );
   }
@@ -77,6 +79,7 @@ class DriftTemplatesRepository implements TemplatesRepository {
       location: row.location,
       sortOrder: row.sortOrder,
       updatedAt: row.updatedAt,
+      reminder: reminderFromColumn(row.reminderOffset),
     );
   }
 }

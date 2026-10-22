@@ -318,6 +318,58 @@ class AppLocalizationsRu extends AppLocalizations {
   String get logs => 'Логи';
 
   @override
+  String get notifications => 'Уведомления о напоминаниях';
+
+  @override
+  String get notificationsDenied => 'Уведомления для SShift выключены в настройках системы';
+
+  @override
+  String get remindersChannel => 'Напоминания';
+
+  @override
+  String get reminder => 'Напоминание';
+
+  @override
+  String get reminderTime => 'Время напоминания';
+
+  @override
+  String get reminderAtStart => 'В момент начала';
+
+  @override
+  String reminderMinutesBefore(int minutes) {
+    return 'За $minutes мин';
+  }
+
+  @override
+  String reminderHoursBefore(int hours) {
+    return 'За $hours ч';
+  }
+
+  @override
+  String get reminderDayBefore => 'За день';
+
+  @override
+  String get reminderOnDay => 'В день события';
+
+  @override
+  String get reminderAllDayDayBefore => 'Накануне';
+
+  @override
+  String reminderToday(String span) {
+    return 'Сегодня, $span';
+  }
+
+  @override
+  String reminderTomorrow(String span) {
+    return 'Завтра, $span';
+  }
+
+  @override
+  String reminderOnDate(String date, String span) {
+    return '$date, $span';
+  }
+
+  @override
   String get autoCheckUpdates => 'Проверять обновления автоматически';
 
   @override

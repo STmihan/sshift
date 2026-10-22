@@ -34,6 +34,7 @@ class ScheduleActions {
       endMinute: template.endMinute,
       breakMinutes: template.breakMinutes,
       location: template.location,
+      reminder: template.reminder,
       pay: await suggestedShiftPay(template),
       updatedAt: DateTime.now(),
     );

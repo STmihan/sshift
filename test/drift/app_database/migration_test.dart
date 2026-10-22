@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sshift/data/database/app_database.dart';
@@ -7,6 +7,7 @@ import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
+import 'generated/schema_v4.dart' as v4;
 
 const _updatedAt = 1792000000;
 
@@ -145,6 +146,41 @@ void main() {
             ),
           ],
         );
+      },
+    );
+  });
+
+  test('migration from v3 to v4 adds empty reminders', () async {
+    await verifier.testWithDataIntegrity(
+      oldVersion: 3,
+      newVersion: 4,
+      createOld: v3.DatabaseAtV3.new,
+      createNew: v4.DatabaseAtV4.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insert(
+          oldDb.shifts,
+          const v3.ShiftsData(
+            id: 's1',
+            templateId: 't1',
+            day: 20261022,
+            allDay: 0,
+            startMinute: 600,
+            endMinute: 1260,
+            breakMinutes: 0,
+            notes: '',
+            location: '',
+            payType: 0,
+            payAmount: 0,
+            updatedAt: _updatedAt,
+          ),
+        );
+      },
+      validateItems: (newDb) async {
+        final shifts = await newDb.select(newDb.shifts).get();
+
+        expect(shifts.single.id, 's1');
+        expect(shifts.single.reminderOffset, isNull);
       },
     );
   });

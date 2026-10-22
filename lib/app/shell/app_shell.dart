@@ -6,10 +6,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/logger.dart';
 import '../../core/theme/dimensions.dart';
+import '../../core/utils/dates.dart';
 import '../../data/data_providers.dart';
+import '../../features/calendar/state/calendar_focus_controller.dart';
 import '../../features/calendar/state/paint_mode_controller.dart';
+import '../../features/reminders/reminder_sync.dart';
 import '../../features/updates/update_sheet.dart';
 import '../../features/updates/updates_controller.dart';
+import '../router.dart';
+import '../routes.dart';
 import 'nav_bar.dart';
 import 'nav_bar_metrics.dart';
 
@@ -30,10 +35,17 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   void initState() {
     super.initState();
+    unawaited(ref.read(reminderNotifierProvider).initialize(onOpenDay: _openDay));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_checkForUpdates());
       unawaited(_deleteOrphanedAttachments());
     });
+  }
+
+  void _openDay(int dayKey) {
+    ref.read(paintModeProvider.notifier).stop();
+    appRouter.go(Routes.calendar);
+    ref.read(calendarFocusProvider.notifier).focus(monthStart(fromDayKey(dayKey)));
   }
 
   Future<void> _deleteOrphanedAttachments() async {
@@ -54,6 +66,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(reminderSyncProvider);
     final painting = ref.watch(paintModeProvider) != null;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final shell = widget.shell;

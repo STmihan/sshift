@@ -145,6 +145,17 @@ class $ShiftTemplatesTable extends ShiftTemplates
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _reminderOffsetMeta = const VerificationMeta(
+    'reminderOffset',
+  );
+  @override
+  late final GeneratedColumn<int> reminderOffset = GeneratedColumn<int>(
+    'reminder_offset',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -160,6 +171,7 @@ class $ShiftTemplatesTable extends ShiftTemplates
     location,
     sortOrder,
     updatedAt,
+    reminderOffset,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -280,6 +292,15 @@ class $ShiftTemplatesTable extends ShiftTemplates
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('reminder_offset')) {
+      context.handle(
+        _reminderOffsetMeta,
+        reminderOffset.isAcceptableOrUnknown(
+          data['reminder_offset']!,
+          _reminderOffsetMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -341,6 +362,10 @@ class $ShiftTemplatesTable extends ShiftTemplates
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      reminderOffset: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_offset'],
+      ),
     );
   }
 
@@ -364,6 +389,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
   final String location;
   final int sortOrder;
   final DateTime updatedAt;
+  final int? reminderOffset;
   const TemplateRow({
     required this.id,
     required this.title,
@@ -378,6 +404,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     required this.location,
     required this.sortOrder,
     required this.updatedAt,
+    this.reminderOffset,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -395,6 +422,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     map['location'] = Variable<String>(location);
     map['sort_order'] = Variable<int>(sortOrder);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || reminderOffset != null) {
+      map['reminder_offset'] = Variable<int>(reminderOffset);
+    }
     return map;
   }
 
@@ -413,6 +443,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       location: Value(location),
       sortOrder: Value(sortOrder),
       updatedAt: Value(updatedAt),
+      reminderOffset: reminderOffset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderOffset),
     );
   }
 
@@ -435,6 +468,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       location: serializer.fromJson<String>(json['location']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      reminderOffset: serializer.fromJson<int?>(json['reminderOffset']),
     );
   }
   @override
@@ -454,6 +488,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       'location': serializer.toJson<String>(location),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'reminderOffset': serializer.toJson<int?>(reminderOffset),
     };
   }
 
@@ -471,6 +506,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     String? location,
     int? sortOrder,
     DateTime? updatedAt,
+    Value<int?> reminderOffset = const Value.absent(),
   }) => TemplateRow(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -485,6 +521,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     location: location ?? this.location,
     sortOrder: sortOrder ?? this.sortOrder,
     updatedAt: updatedAt ?? this.updatedAt,
+    reminderOffset: reminderOffset.present
+        ? reminderOffset.value
+        : this.reminderOffset,
   );
   TemplateRow copyWithCompanion(ShiftTemplatesCompanion data) {
     return TemplateRow(
@@ -505,6 +544,9 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
       location: data.location.present ? data.location.value : this.location,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      reminderOffset: data.reminderOffset.present
+          ? data.reminderOffset.value
+          : this.reminderOffset,
     );
   }
 
@@ -523,7 +565,8 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
           ..write('payAmount: $payAmount, ')
           ..write('location: $location, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('reminderOffset: $reminderOffset')
           ..write(')'))
         .toString();
   }
@@ -543,6 +586,7 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
     location,
     sortOrder,
     updatedAt,
+    reminderOffset,
   );
   @override
   bool operator ==(Object other) =>
@@ -560,7 +604,8 @@ class TemplateRow extends DataClass implements Insertable<TemplateRow> {
           other.payAmount == this.payAmount &&
           other.location == this.location &&
           other.sortOrder == this.sortOrder &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.reminderOffset == this.reminderOffset);
 }
 
 class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
@@ -577,6 +622,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
   final Value<String> location;
   final Value<int> sortOrder;
   final Value<DateTime> updatedAt;
+  final Value<int?> reminderOffset;
   final Value<int> rowid;
   const ShiftTemplatesCompanion({
     this.id = const Value.absent(),
@@ -592,6 +638,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
     this.location = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.reminderOffset = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ShiftTemplatesCompanion.insert({
@@ -608,6 +655,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
     required String location,
     required int sortOrder,
     required DateTime updatedAt,
+    this.reminderOffset = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -636,6 +684,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
     Expression<String>? location,
     Expression<int>? sortOrder,
     Expression<DateTime>? updatedAt,
+    Expression<int>? reminderOffset,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -652,6 +701,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
       if (location != null) 'location': location,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (reminderOffset != null) 'reminder_offset': reminderOffset,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -670,6 +720,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
     Value<String>? location,
     Value<int>? sortOrder,
     Value<DateTime>? updatedAt,
+    Value<int?>? reminderOffset,
     Value<int>? rowid,
   }) {
     return ShiftTemplatesCompanion(
@@ -686,6 +737,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
       location: location ?? this.location,
       sortOrder: sortOrder ?? this.sortOrder,
       updatedAt: updatedAt ?? this.updatedAt,
+      reminderOffset: reminderOffset ?? this.reminderOffset,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -732,6 +784,9 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (reminderOffset.present) {
+      map['reminder_offset'] = Variable<int>(reminderOffset.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -754,6 +809,7 @@ class ShiftTemplatesCompanion extends UpdateCompanion<TemplateRow> {
           ..write('location: $location, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('reminderOffset: $reminderOffset, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -892,6 +948,17 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, ShiftRow> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _reminderOffsetMeta = const VerificationMeta(
+    'reminderOffset',
+  );
+  @override
+  late final GeneratedColumn<int> reminderOffset = GeneratedColumn<int>(
+    'reminder_offset',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -906,6 +973,7 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, ShiftRow> {
     payType,
     payAmount,
     updatedAt,
+    reminderOffset,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1018,6 +1086,15 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, ShiftRow> {
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('reminder_offset')) {
+      context.handle(
+        _reminderOffsetMeta,
+        reminderOffset.isAcceptableOrUnknown(
+          data['reminder_offset']!,
+          _reminderOffsetMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1075,6 +1152,10 @@ class $ShiftsTable extends Shifts with TableInfo<$ShiftsTable, ShiftRow> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      reminderOffset: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_offset'],
+      ),
     );
   }
 
@@ -1097,6 +1178,7 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
   final int payType;
   final int payAmount;
   final DateTime updatedAt;
+  final int? reminderOffset;
   const ShiftRow({
     required this.id,
     required this.templateId,
@@ -1110,6 +1192,7 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
     required this.payType,
     required this.payAmount,
     required this.updatedAt,
+    this.reminderOffset,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1126,6 +1209,9 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
     map['pay_type'] = Variable<int>(payType);
     map['pay_amount'] = Variable<int>(payAmount);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || reminderOffset != null) {
+      map['reminder_offset'] = Variable<int>(reminderOffset);
+    }
     return map;
   }
 
@@ -1143,6 +1229,9 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
       payType: Value(payType),
       payAmount: Value(payAmount),
       updatedAt: Value(updatedAt),
+      reminderOffset: reminderOffset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderOffset),
     );
   }
 
@@ -1164,6 +1253,7 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
       payType: serializer.fromJson<int>(json['payType']),
       payAmount: serializer.fromJson<int>(json['payAmount']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      reminderOffset: serializer.fromJson<int?>(json['reminderOffset']),
     );
   }
   @override
@@ -1182,6 +1272,7 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
       'payType': serializer.toJson<int>(payType),
       'payAmount': serializer.toJson<int>(payAmount),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'reminderOffset': serializer.toJson<int?>(reminderOffset),
     };
   }
 
@@ -1198,6 +1289,7 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
     int? payType,
     int? payAmount,
     DateTime? updatedAt,
+    Value<int?> reminderOffset = const Value.absent(),
   }) => ShiftRow(
     id: id ?? this.id,
     templateId: templateId ?? this.templateId,
@@ -1211,6 +1303,9 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
     payType: payType ?? this.payType,
     payAmount: payAmount ?? this.payAmount,
     updatedAt: updatedAt ?? this.updatedAt,
+    reminderOffset: reminderOffset.present
+        ? reminderOffset.value
+        : this.reminderOffset,
   );
   ShiftRow copyWithCompanion(ShiftsCompanion data) {
     return ShiftRow(
@@ -1232,6 +1327,9 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
       payType: data.payType.present ? data.payType.value : this.payType,
       payAmount: data.payAmount.present ? data.payAmount.value : this.payAmount,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      reminderOffset: data.reminderOffset.present
+          ? data.reminderOffset.value
+          : this.reminderOffset,
     );
   }
 
@@ -1249,7 +1347,8 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
           ..write('location: $location, ')
           ..write('payType: $payType, ')
           ..write('payAmount: $payAmount, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('reminderOffset: $reminderOffset')
           ..write(')'))
         .toString();
   }
@@ -1268,6 +1367,7 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
     payType,
     payAmount,
     updatedAt,
+    reminderOffset,
   );
   @override
   bool operator ==(Object other) =>
@@ -1284,7 +1384,8 @@ class ShiftRow extends DataClass implements Insertable<ShiftRow> {
           other.location == this.location &&
           other.payType == this.payType &&
           other.payAmount == this.payAmount &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.reminderOffset == this.reminderOffset);
 }
 
 class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
@@ -1300,6 +1401,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
   final Value<int> payType;
   final Value<int> payAmount;
   final Value<DateTime> updatedAt;
+  final Value<int?> reminderOffset;
   final Value<int> rowid;
   const ShiftsCompanion({
     this.id = const Value.absent(),
@@ -1314,6 +1416,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
     this.payType = const Value.absent(),
     this.payAmount = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.reminderOffset = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ShiftsCompanion.insert({
@@ -1329,6 +1432,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
     required int payType,
     required int payAmount,
     required DateTime updatedAt,
+    this.reminderOffset = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        templateId = Value(templateId),
@@ -1355,6 +1459,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
     Expression<int>? payType,
     Expression<int>? payAmount,
     Expression<DateTime>? updatedAt,
+    Expression<int>? reminderOffset,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1370,6 +1475,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
       if (payType != null) 'pay_type': payType,
       if (payAmount != null) 'pay_amount': payAmount,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (reminderOffset != null) 'reminder_offset': reminderOffset,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1387,6 +1493,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
     Value<int>? payType,
     Value<int>? payAmount,
     Value<DateTime>? updatedAt,
+    Value<int?>? reminderOffset,
     Value<int>? rowid,
   }) {
     return ShiftsCompanion(
@@ -1402,6 +1509,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
       payType: payType ?? this.payType,
       payAmount: payAmount ?? this.payAmount,
       updatedAt: updatedAt ?? this.updatedAt,
+      reminderOffset: reminderOffset ?? this.reminderOffset,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1445,6 +1553,9 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (reminderOffset.present) {
+      map['reminder_offset'] = Variable<int>(reminderOffset.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1466,6 +1577,7 @@ class ShiftsCompanion extends UpdateCompanion<ShiftRow> {
           ..write('payType: $payType, ')
           ..write('payAmount: $payAmount, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('reminderOffset: $reminderOffset, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1591,6 +1703,17 @@ class $EventsTable extends Events with TableInfo<$EventsTable, EventRow> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _reminderOffsetMeta = const VerificationMeta(
+    'reminderOffset',
+  );
+  @override
+  late final GeneratedColumn<int> reminderOffset = GeneratedColumn<int>(
+    'reminder_offset',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1604,6 +1727,7 @@ class $EventsTable extends Events with TableInfo<$EventsTable, EventRow> {
     payType,
     payAmount,
     updatedAt,
+    reminderOffset,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1705,6 +1829,15 @@ class $EventsTable extends Events with TableInfo<$EventsTable, EventRow> {
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('reminder_offset')) {
+      context.handle(
+        _reminderOffsetMeta,
+        reminderOffset.isAcceptableOrUnknown(
+          data['reminder_offset']!,
+          _reminderOffsetMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1758,6 +1891,10 @@ class $EventsTable extends Events with TableInfo<$EventsTable, EventRow> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      reminderOffset: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_offset'],
+      ),
     );
   }
 
@@ -1779,6 +1916,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
   final int payType;
   final int payAmount;
   final DateTime updatedAt;
+  final int? reminderOffset;
   const EventRow({
     required this.id,
     required this.day,
@@ -1791,6 +1929,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
     required this.payType,
     required this.payAmount,
     required this.updatedAt,
+    this.reminderOffset,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1806,6 +1945,9 @@ class EventRow extends DataClass implements Insertable<EventRow> {
     map['pay_type'] = Variable<int>(payType);
     map['pay_amount'] = Variable<int>(payAmount);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || reminderOffset != null) {
+      map['reminder_offset'] = Variable<int>(reminderOffset);
+    }
     return map;
   }
 
@@ -1822,6 +1964,9 @@ class EventRow extends DataClass implements Insertable<EventRow> {
       payType: Value(payType),
       payAmount: Value(payAmount),
       updatedAt: Value(updatedAt),
+      reminderOffset: reminderOffset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderOffset),
     );
   }
 
@@ -1842,6 +1987,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
       payType: serializer.fromJson<int>(json['payType']),
       payAmount: serializer.fromJson<int>(json['payAmount']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      reminderOffset: serializer.fromJson<int?>(json['reminderOffset']),
     );
   }
   @override
@@ -1859,6 +2005,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
       'payType': serializer.toJson<int>(payType),
       'payAmount': serializer.toJson<int>(payAmount),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'reminderOffset': serializer.toJson<int?>(reminderOffset),
     };
   }
 
@@ -1874,6 +2021,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
     int? payType,
     int? payAmount,
     DateTime? updatedAt,
+    Value<int?> reminderOffset = const Value.absent(),
   }) => EventRow(
     id: id ?? this.id,
     day: day ?? this.day,
@@ -1886,6 +2034,9 @@ class EventRow extends DataClass implements Insertable<EventRow> {
     payType: payType ?? this.payType,
     payAmount: payAmount ?? this.payAmount,
     updatedAt: updatedAt ?? this.updatedAt,
+    reminderOffset: reminderOffset.present
+        ? reminderOffset.value
+        : this.reminderOffset,
   );
   EventRow copyWithCompanion(EventsCompanion data) {
     return EventRow(
@@ -1902,6 +2053,9 @@ class EventRow extends DataClass implements Insertable<EventRow> {
       payType: data.payType.present ? data.payType.value : this.payType,
       payAmount: data.payAmount.present ? data.payAmount.value : this.payAmount,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      reminderOffset: data.reminderOffset.present
+          ? data.reminderOffset.value
+          : this.reminderOffset,
     );
   }
 
@@ -1918,7 +2072,8 @@ class EventRow extends DataClass implements Insertable<EventRow> {
           ..write('location: $location, ')
           ..write('payType: $payType, ')
           ..write('payAmount: $payAmount, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('reminderOffset: $reminderOffset')
           ..write(')'))
         .toString();
   }
@@ -1936,6 +2091,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
     payType,
     payAmount,
     updatedAt,
+    reminderOffset,
   );
   @override
   bool operator ==(Object other) =>
@@ -1951,7 +2107,8 @@ class EventRow extends DataClass implements Insertable<EventRow> {
           other.location == this.location &&
           other.payType == this.payType &&
           other.payAmount == this.payAmount &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.reminderOffset == this.reminderOffset);
 }
 
 class EventsCompanion extends UpdateCompanion<EventRow> {
@@ -1966,6 +2123,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
   final Value<int> payType;
   final Value<int> payAmount;
   final Value<DateTime> updatedAt;
+  final Value<int?> reminderOffset;
   final Value<int> rowid;
   const EventsCompanion({
     this.id = const Value.absent(),
@@ -1979,6 +2137,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
     this.payType = const Value.absent(),
     this.payAmount = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.reminderOffset = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   EventsCompanion.insert({
@@ -1993,6 +2152,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
     required int payType,
     required int payAmount,
     required DateTime updatedAt,
+    this.reminderOffset = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        day = Value(day),
@@ -2017,6 +2177,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
     Expression<int>? payType,
     Expression<int>? payAmount,
     Expression<DateTime>? updatedAt,
+    Expression<int>? reminderOffset,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2031,6 +2192,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
       if (payType != null) 'pay_type': payType,
       if (payAmount != null) 'pay_amount': payAmount,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (reminderOffset != null) 'reminder_offset': reminderOffset,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2047,6 +2209,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
     Value<int>? payType,
     Value<int>? payAmount,
     Value<DateTime>? updatedAt,
+    Value<int?>? reminderOffset,
     Value<int>? rowid,
   }) {
     return EventsCompanion(
@@ -2061,6 +2224,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
       payType: payType ?? this.payType,
       payAmount: payAmount ?? this.payAmount,
       updatedAt: updatedAt ?? this.updatedAt,
+      reminderOffset: reminderOffset ?? this.reminderOffset,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2101,6 +2265,9 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (reminderOffset.present) {
+      map['reminder_offset'] = Variable<int>(reminderOffset.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2121,6 +2288,7 @@ class EventsCompanion extends UpdateCompanion<EventRow> {
           ..write('payType: $payType, ')
           ..write('payAmount: $payAmount, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('reminderOffset: $reminderOffset, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2632,6 +2800,7 @@ typedef $$ShiftTemplatesTableCreateCompanionBuilder =
       required String location,
       required int sortOrder,
       required DateTime updatedAt,
+      Value<int?> reminderOffset,
       Value<int> rowid,
     });
 typedef $$ShiftTemplatesTableUpdateCompanionBuilder =
@@ -2649,6 +2818,7 @@ typedef $$ShiftTemplatesTableUpdateCompanionBuilder =
       Value<String> location,
       Value<int> sortOrder,
       Value<DateTime> updatedAt,
+      Value<int?> reminderOffset,
       Value<int> rowid,
     });
 
@@ -2723,6 +2893,11 @@ class $$ShiftTemplatesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2800,6 +2975,11 @@ class $$ShiftTemplatesTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ShiftTemplatesTableAnnotationComposer
@@ -2853,6 +3033,11 @@ class $$ShiftTemplatesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
+    builder: (column) => column,
+  );
 }
 
 class $$ShiftTemplatesTableTableManager
@@ -2901,6 +3086,7 @@ class $$ShiftTemplatesTableTableManager
                 Value<String> location = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int?> reminderOffset = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ShiftTemplatesCompanion(
                 id: id,
@@ -2916,6 +3102,7 @@ class $$ShiftTemplatesTableTableManager
                 location: location,
                 sortOrder: sortOrder,
                 updatedAt: updatedAt,
+                reminderOffset: reminderOffset,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2933,6 +3120,7 @@ class $$ShiftTemplatesTableTableManager
                 required String location,
                 required int sortOrder,
                 required DateTime updatedAt,
+                Value<int?> reminderOffset = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ShiftTemplatesCompanion.insert(
                 id: id,
@@ -2948,6 +3136,7 @@ class $$ShiftTemplatesTableTableManager
                 location: location,
                 sortOrder: sortOrder,
                 updatedAt: updatedAt,
+                reminderOffset: reminderOffset,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2998,6 +3187,7 @@ typedef $$ShiftsTableCreateCompanionBuilder =
       required int payType,
       required int payAmount,
       required DateTime updatedAt,
+      Value<int?> reminderOffset,
       Value<int> rowid,
     });
 typedef $$ShiftsTableUpdateCompanionBuilder =
@@ -3014,6 +3204,7 @@ typedef $$ShiftsTableUpdateCompanionBuilder =
       Value<int> payType,
       Value<int> payAmount,
       Value<DateTime> updatedAt,
+      Value<int?> reminderOffset,
       Value<int> rowid,
     });
 
@@ -3083,6 +3274,11 @@ class $$ShiftsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3155,6 +3351,11 @@ class $$ShiftsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ShiftsTableAnnotationComposer
@@ -3207,6 +3408,11 @@ class $$ShiftsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
+    builder: (column) => column,
+  );
 }
 
 class $$ShiftsTableTableManager
@@ -3249,6 +3455,7 @@ class $$ShiftsTableTableManager
                 Value<int> payType = const Value.absent(),
                 Value<int> payAmount = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int?> reminderOffset = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ShiftsCompanion(
                 id: id,
@@ -3263,6 +3470,7 @@ class $$ShiftsTableTableManager
                 payType: payType,
                 payAmount: payAmount,
                 updatedAt: updatedAt,
+                reminderOffset: reminderOffset,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3279,6 +3487,7 @@ class $$ShiftsTableTableManager
                 required int payType,
                 required int payAmount,
                 required DateTime updatedAt,
+                Value<int?> reminderOffset = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ShiftsCompanion.insert(
                 id: id,
@@ -3293,6 +3502,7 @@ class $$ShiftsTableTableManager
                 payType: payType,
                 payAmount: payAmount,
                 updatedAt: updatedAt,
+                reminderOffset: reminderOffset,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -3339,6 +3549,7 @@ typedef $$EventsTableCreateCompanionBuilder =
       required int payType,
       required int payAmount,
       required DateTime updatedAt,
+      Value<int?> reminderOffset,
       Value<int> rowid,
     });
 typedef $$EventsTableUpdateCompanionBuilder =
@@ -3354,6 +3565,7 @@ typedef $$EventsTableUpdateCompanionBuilder =
       Value<int> payType,
       Value<int> payAmount,
       Value<DateTime> updatedAt,
+      Value<int?> reminderOffset,
       Value<int> rowid,
     });
 
@@ -3418,6 +3630,11 @@ class $$EventsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3485,6 +3702,11 @@ class $$EventsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$EventsTableAnnotationComposer
@@ -3530,6 +3752,11 @@ class $$EventsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get reminderOffset => $composableBuilder(
+    column: $table.reminderOffset,
+    builder: (column) => column,
+  );
 }
 
 class $$EventsTableTableManager
@@ -3571,6 +3798,7 @@ class $$EventsTableTableManager
                 Value<int> payType = const Value.absent(),
                 Value<int> payAmount = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int?> reminderOffset = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => EventsCompanion(
                 id: id,
@@ -3584,6 +3812,7 @@ class $$EventsTableTableManager
                 payType: payType,
                 payAmount: payAmount,
                 updatedAt: updatedAt,
+                reminderOffset: reminderOffset,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3599,6 +3828,7 @@ class $$EventsTableTableManager
                 required int payType,
                 required int payAmount,
                 required DateTime updatedAt,
+                Value<int?> reminderOffset = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => EventsCompanion.insert(
                 id: id,
@@ -3612,6 +3842,7 @@ class $$EventsTableTableManager
                 payType: payType,
                 payAmount: payAmount,
                 updatedAt: updatedAt,
+                reminderOffset: reminderOffset,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

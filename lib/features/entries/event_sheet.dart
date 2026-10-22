@@ -14,6 +14,7 @@ import '../../domain/models/calendar_event.dart';
 import '../../domain/models/pay.dart';
 import '../../domain/repositories/attachments_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../reminders/reminder_permission.dart';
 import '../settings/settings_controller.dart';
 import 'widgets/attachments/attachments_section.dart';
 import 'widgets/entry_sheet_header.dart';
@@ -155,9 +156,24 @@ class _EventSheetState extends ConsumerState<EventSheet> {
           allDay: _draft.allDay,
           startMinute: _draft.startMinute,
           endMinute: _draft.endMinute,
-          onAllDay: (value) => _edit((e) => e.copyWith(allDay: value)),
+          onAllDay: (value) {
+            _edit(
+              (e) => e.copyWith(
+                allDay: value,
+                reminder: () => e.reminder?.convertedFor(allDay: value),
+              ),
+            );
+          },
           onStart: (value) => _edit((e) => e.copyWith(startMinute: value)),
           onEnd: (value) => _edit((e) => e.copyWith(endMinute: value)),
+          reminder: _draft.reminder,
+          onReminder: (value) {
+            _edit((e) => e.copyWith(reminder: () => value));
+
+            if (value != null) {
+              unawaited(requestReminderPermission(context, ref));
+            }
+          },
         ),
         PaySectionLabel(earned: _draft.earned, currency: currency),
         PayEditor(

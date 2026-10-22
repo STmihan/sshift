@@ -578,6 +578,90 @@ abstract class AppLocalizations {
   /// **'Logs'**
   String get logs;
 
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder notifications'**
+  String get notifications;
+
+  /// No description provided for @notificationsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for SShift in system settings'**
+  String get notificationsDenied;
+
+  /// No description provided for @remindersChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remindersChannel;
+
+  /// No description provided for @reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminder;
+
+  /// No description provided for @reminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get reminderTime;
+
+  /// No description provided for @reminderAtStart.
+  ///
+  /// In en, this message translates to:
+  /// **'At start time'**
+  String get reminderAtStart;
+
+  /// No description provided for @reminderMinutesBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min before'**
+  String reminderMinutesBefore(int minutes);
+
+  /// No description provided for @reminderHoursBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h before'**
+  String reminderHoursBefore(int hours);
+
+  /// No description provided for @reminderDayBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get reminderDayBefore;
+
+  /// No description provided for @reminderOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the day'**
+  String get reminderOnDay;
+
+  /// No description provided for @reminderAllDayDayBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'The day before'**
+  String get reminderAllDayDayBefore;
+
+  /// No description provided for @reminderToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {span}'**
+  String reminderToday(String span);
+
+  /// No description provided for @reminderTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow, {span}'**
+  String reminderTomorrow(String span);
+
+  /// No description provided for @reminderOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {span}'**
+  String reminderOnDate(String date, String span);
+
   /// No description provided for @autoCheckUpdates.
   ///
   /// In en, this message translates to:

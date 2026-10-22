@@ -7,7 +7,9 @@ import '../../../core/widgets/group_card.dart';
 import '../../../core/widgets/option_picker_sheet.dart';
 import '../../../core/widgets/switch_row.dart';
 import '../../../core/widgets/time_picker/pick_time.dart';
+import '../../../domain/models/reminder.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../reminders/widgets/reminder_rows.dart';
 
 class TimeFields extends StatelessWidget {
   const TimeFields({
@@ -19,6 +21,8 @@ class TimeFields extends StatelessWidget {
     required this.onEnd,
     this.breakMinutes,
     this.onBreak,
+    this.reminder,
+    this.onReminder,
     this.leading = const [],
     super.key,
   });
@@ -33,6 +37,8 @@ class TimeFields extends StatelessWidget {
   final ValueChanged<int> onStart;
   final ValueChanged<int> onEnd;
   final ValueChanged<int>? onBreak;
+  final Reminder? reminder;
+  final ValueChanged<Reminder?>? onReminder;
   final List<Widget> leading;
 
   @override
@@ -42,6 +48,7 @@ class TimeFields extends StatelessWidget {
     final endsNextDay = !allDay && endMinute <= startMinute;
     final breakValue = breakMinutes;
     final breakChanged = onBreak;
+    final reminderChanged = onReminder;
 
     String breakLabel(int minutes) {
       return minutes == 0 ? l.none : formatDuration(context, minutes);
@@ -99,6 +106,8 @@ class TimeFields extends StatelessWidget {
               }
             },
           ),
+        if (reminderChanged != null)
+          ...reminderRows(context: context, reminder: reminder, allDay: allDay, onChanged: reminderChanged),
       ],
     );
   }

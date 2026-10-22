@@ -21,6 +21,7 @@ import '../../core/widgets/switch_row.dart';
 import '../../domain/models/app_settings.dart';
 import '../../domain/models/time_format.dart';
 import '../../l10n/app_localizations.dart';
+import '../reminders/reminder_permission.dart';
 import '../updates/update_sheet.dart';
 import '../updates/updates_controller.dart';
 import '../updates/widgets/update_available_row.dart';
@@ -210,6 +211,22 @@ class SettingsScreen extends ConsumerWidget {
 
                             if (currency != null) {
                               await controller.update((s) => s.copyWith(currency: currency));
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    GroupCard(
+                      children: [
+                        SwitchRow(
+                          label: l.notifications,
+                          value: settings.notificationsEnabled,
+                          onChanged: (value) {
+                            unawaited(controller.update((s) => s.copyWith(notificationsEnabled: value)));
+
+                            if (value) {
+                              unawaited(requestReminderPermission(context, ref));
                             }
                           },
                         ),

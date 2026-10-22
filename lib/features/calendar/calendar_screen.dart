@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +11,7 @@ import '../schedule/day_range.dart';
 import '../schedule/schedule_actions.dart';
 import '../schedule/schedule_providers.dart';
 import '../templates/templates_providers.dart';
+import 'state/calendar_focus_controller.dart';
 import 'state/first_day_of_week_provider.dart';
 import 'state/paint_mode_controller.dart';
 import 'widgets/calendar_header.dart';
@@ -44,6 +47,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   static DateTime _monthAt(int index) {
     return DateTime(_baseMonth.year, _baseMonth.month + index);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _consumeFocus(ref.read(calendarFocusProvider));
+    });
+  }
+
+  void _consumeFocus(DateTime? month) {
+    if (month == null || !mounted) {
+      return;
+    }
+
+    ref.read(calendarFocusProvider.notifier).clear();
+    unawaited(_goTo(month));
   }
 
   @override
@@ -145,6 +165,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(calendarFocusProvider, (_, month) => _consumeFocus(month));
     final media = MediaQuery.of(context);
     final firstDayOfWeek = firstDayOfWeekOf(context, ref);
 

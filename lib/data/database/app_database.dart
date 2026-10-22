@@ -16,7 +16,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'sshift'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -38,6 +38,11 @@ class AppDatabase extends _$AppDatabase {
           ),
         );
         await m.createIndex(schema.attachmentsOwner);
+      },
+      from3To4: (m, schema) async {
+        await m.addColumn(schema.shiftTemplates, schema.shiftTemplates.reminderOffset);
+        await m.addColumn(schema.shifts, schema.shifts.reminderOffset);
+        await m.addColumn(schema.events, schema.events.reminderOffset);
       },
     ),
   );
