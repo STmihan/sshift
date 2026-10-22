@@ -1,5 +1,7 @@
 # SShift
 
+[![Release](https://github.com/STmihan/sshift/actions/workflows/release.yml/badge.svg)](https://github.com/STmihan/sshift/actions/workflows/release.yml)
+
 A simplified shift calendar with earnings tracking, inspired by Supershift.
 
 ## Stack

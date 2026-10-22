@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 @DataClassName('EventRow')
+@TableIndex(name: 'events_day', columns: {#day})
 class Events extends Table {
   TextColumn get id => text()();
   IntColumn get day => integer()();

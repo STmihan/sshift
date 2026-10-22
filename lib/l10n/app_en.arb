@@ -72,7 +72,7 @@
   "deleteShiftTypeBody": "All shifts of this type will also be removed from the calendar.",
 
   "pickMonth": "Select month",
-  "monthRange": "{from} – {to}",
+  "monthRange": "{from} - {to}",
   "@monthRange": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
   "monthsSelected": "{count, plural, one{{count} month} other{{count} months}}",
   "@monthsSelected": {"placeholders": {"count": {"type": "int"}}},

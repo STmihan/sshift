@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 @DataClassName('AttachmentRow')
+@TableIndex(name: 'attachments_shift', columns: {#shiftId})
 class Attachments extends Table {
   TextColumn get id => text()();
   TextColumn get shiftId => text()();

@@ -62,7 +62,7 @@
   "deleteShiftTypeBody": "Все смены этого типа также будут удалены из календаря.",
 
   "pickMonth": "Выберите месяц",
-  "monthRange": "{from} – {to}",
+  "monthRange": "{from} - {to}",
   "monthsSelected": "{count, plural, one{{count} месяц} few{{count} месяца} many{{count} месяцев} other{{count} месяца}}",
 
   "reportsTitle": "Отчёты",

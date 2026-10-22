@@ -7,6 +7,8 @@ formatter:
 analyzer:
   exclude:
     - lib/**/*.g.dart
+    - lib/**/*.steps.dart
+    - test/drift/**/generated/**
     - lib/l10n/app_localizations*.dart
   language:
     strict-casts: true

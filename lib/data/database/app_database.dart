@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import 'app_database.steps.dart';
 import 'tables/attachments_table.dart';
 import 'tables/events_table.dart';
 import 'tables/shift_templates_table.dart';
@@ -17,22 +18,11 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) async {
-      await m.createAll();
-      await customStatement('CREATE INDEX shifts_day ON shifts (day)');
-      await customStatement('CREATE INDEX shifts_template ON shifts (template_id, day)');
-      await customStatement('CREATE INDEX events_day ON events (day)');
-      await _createAttachmentsIndex();
-    },
-    onUpgrade: (m, from, to) async {
-      if (from < 2) {
-        await m.createTable(attachments);
-        await _createAttachmentsIndex();
-      }
-    },
+    onUpgrade: stepByStep(
+      from1To2: (m, schema) async {
+        await m.createTable(schema.attachments);
+        await m.createIndex(schema.attachmentsShift);
+      },
+    ),
   );
-
-  Future<void> _createAttachmentsIndex() {
-    return customStatement('CREATE INDEX attachments_shift ON attachments (shift_id)');
-  }
 }

@@ -2537,6 +2537,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ShiftsTable shifts = $ShiftsTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $AttachmentsTable attachments = $AttachmentsTable(this);
+  late final Index shiftsDay = Index(
+    'shifts_day',
+    'CREATE INDEX shifts_day ON shifts (day)',
+  );
+  late final Index shiftsTemplate = Index(
+    'shifts_template',
+    'CREATE INDEX shifts_template ON shifts (template_id, day)',
+  );
+  late final Index eventsDay = Index(
+    'events_day',
+    'CREATE INDEX events_day ON events (day)',
+  );
+  late final Index attachmentsShift = Index(
+    'attachments_shift',
+    'CREATE INDEX attachments_shift ON attachments (shift_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2546,6 +2562,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     shifts,
     events,
     attachments,
+    shiftsDay,
+    shiftsTemplate,
+    eventsDay,
+    attachmentsShift,
   ];
 }
 

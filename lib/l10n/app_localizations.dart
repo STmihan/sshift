@@ -425,7 +425,7 @@ abstract class AppLocalizations {
   /// No description provided for @monthRange.
   ///
   /// In en, this message translates to:
-  /// **'{from} – {to}'**
+  /// **'{from} - {to}'**
   String monthRange(String from, String to);
 
   /// No description provided for @monthsSelected.

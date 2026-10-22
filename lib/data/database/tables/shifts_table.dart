@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 @DataClassName('ShiftRow')
+@TableIndex(name: 'shifts_day', columns: {#day})
+@TableIndex(name: 'shifts_template', columns: {#templateId, #day})
 class Shifts extends Table {
   TextColumn get id => text()();
   TextColumn get templateId => text()();
