@@ -128,6 +128,13 @@ String formatMoney(BuildContext context, int minor, String currency) {
   return _currencyFormat(context, currency, minor % 100 == 0 ? 0 : 2).format(minor / 100);
 }
 
+String formatMegabytes(BuildContext context, int bytes) {
+  final locale = _locale(context);
+  final format = _numberFormats.putIfAbsent(('#,##0.0', locale), () => NumberFormat('#,##0.0', locale));
+
+  return AppLocalizations.of(context).megabytes(format.format(bytes / (1024 * 1024)));
+}
+
 String currencySymbol(BuildContext context, String currency) {
   return _currencyFormat(context, currency, 2).currencySymbol;
 }

@@ -315,5 +315,62 @@ class AppLocalizationsRu extends AppLocalizations {
   String get logs => 'Логи';
 
   @override
+  String get autoCheckUpdates => 'Проверять обновления автоматически';
+
+  @override
+  String get checkForUpdates => 'Проверить обновления';
+
+  @override
+  String get upToDate => 'У вас последняя версия';
+
+  @override
+  String get updateCheckFailed => 'Не удалось проверить обновления';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Доступна версия $version';
+  }
+
+  @override
+  String get updateInstalledVersion => 'Установлена версия';
+
+  @override
+  String get updateDownloadSize => 'Размер загрузки';
+
+  @override
+  String get whatsNew => 'Что нового';
+
+  @override
+  String get updateNow => 'Обновить';
+
+  @override
+  String get updateLater => 'Позже';
+
+  @override
+  String get skipVersion => 'Пропустить версию';
+
+  @override
+  String get downloadingUpdate => 'Загрузка…';
+
+  @override
+  String downloadProgress(String received, String total, int percent) {
+    return '$received из $total · $percent%';
+  }
+
+  @override
+  String get downloadFailed => 'Не удалось скачать обновление';
+
+  @override
+  String get installFailed => 'Не удалось открыть установщик';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
+  String megabytes(String value) {
+    return '$value МБ';
+  }
+
+  @override
   String get openLinkFailed => 'Не удалось открыть ссылку';
 }

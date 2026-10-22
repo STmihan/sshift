@@ -4,10 +4,13 @@ import '../domain/repositories/attachments_repository.dart';
 import '../domain/repositories/schedule_repository.dart';
 import '../domain/repositories/settings_repository.dart';
 import '../domain/repositories/templates_repository.dart';
+import '../domain/repositories/update_preferences_repository.dart';
+import '../domain/repositories/updates_repository.dart';
 import 'database/app_database.dart';
 import 'repositories/drift_attachments_repository.dart';
 import 'repositories/drift_schedule_repository.dart';
 import 'repositories/drift_templates_repository.dart';
+import 'repositories/github_updates_repository.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -36,3 +39,11 @@ final scheduleRepositoryProvider = Provider<ScheduleRepository>(
 final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => throw UnimplementedError('settingsRepositoryProvider must be overridden'),
 );
+
+final updatesRepositoryProvider = Provider<UpdatesRepository>((ref) {
+  return GithubUpdatesRepository();
+});
+
+final updatePreferencesRepositoryProvider = Provider<UpdatePreferencesRepository>((ref) {
+  throw UnimplementedError('updatePreferencesRepositoryProvider must be overridden');
+});

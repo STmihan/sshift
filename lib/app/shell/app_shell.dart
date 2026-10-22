@@ -1,23 +1,51 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/dimensions.dart';
 import '../../features/calendar/state/paint_mode_controller.dart';
+import '../../features/updates/update_sheet.dart';
+import '../../features/updates/updates_controller.dart';
 import 'nav_bar.dart';
 import 'nav_bar_metrics.dart';
 
-class AppShell extends ConsumerWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({required this.shell, super.key});
-
-  static const _hiddenOffset = -120.0;
 
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppShell> createState() {
+    return _AppShellState();
+  }
+}
+
+class _AppShellState extends ConsumerState<AppShell> {
+  static const _hiddenOffset = -120.0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_checkForUpdates());
+    });
+  }
+
+  Future<void> _checkForUpdates() async {
+    final update = await ref.read(updatesControllerProvider.notifier).checkOnStartup();
+
+    if (update != null && mounted) {
+      await showUpdateSheet(context, update);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final painting = ref.watch(paintModeProvider) != null;
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final shell = widget.shell;
 
     return Scaffold(
       body: Stack(

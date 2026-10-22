@@ -307,5 +307,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logs => 'Logs';
 
   @override
+  String get autoCheckUpdates => 'Check for updates automatically';
+
+  @override
+  String get checkForUpdates => 'Check for updates';
+
+  @override
+  String get upToDate => 'You have the latest version';
+
+  @override
+  String get updateCheckFailed => 'Couldn\'t check for updates';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Version $version is available';
+  }
+
+  @override
+  String get updateInstalledVersion => 'Installed version';
+
+  @override
+  String get updateDownloadSize => 'Download size';
+
+  @override
+  String get whatsNew => 'What\'s new';
+
+  @override
+  String get updateNow => 'Update';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get skipVersion => 'Skip version';
+
+  @override
+  String get downloadingUpdate => 'Downloading…';
+
+  @override
+  String downloadProgress(String received, String total, int percent) {
+    return '$received of $total · $percent%';
+  }
+
+  @override
+  String get downloadFailed => 'Couldn\'t download the update';
+
+  @override
+  String get installFailed => 'Couldn\'t open the installer';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String megabytes(String value) {
+    return '$value MB';
+  }
+
+  @override
   String get openLinkFailed => 'Can\'t open the link';
 }

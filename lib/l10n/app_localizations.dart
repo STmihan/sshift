@@ -572,6 +572,108 @@ abstract class AppLocalizations {
   /// **'Logs'**
   String get logs;
 
+  /// No description provided for @autoCheckUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates automatically'**
+  String get autoCheckUpdates;
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get checkForUpdates;
+
+  /// No description provided for @upToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'You have the latest version'**
+  String get upToDate;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check for updates'**
+  String get updateCheckFailed;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available'**
+  String updateAvailable(String version);
+
+  /// No description provided for @updateInstalledVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed version'**
+  String get updateInstalledVersion;
+
+  /// No description provided for @updateDownloadSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Download size'**
+  String get updateDownloadSize;
+
+  /// No description provided for @whatsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get whatsNew;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @skipVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip version'**
+  String get skipVersion;
+
+  /// No description provided for @downloadingUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get downloadingUpdate;
+
+  /// No description provided for @downloadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{received} of {total} · {percent}%'**
+  String downloadProgress(String received, String total, int percent);
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the update'**
+  String get downloadFailed;
+
+  /// No description provided for @installFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the installer'**
+  String get installFailed;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @megabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} MB'**
+  String megabytes(String value);
+
   /// No description provided for @openLinkFailed.
   ///
   /// In en, this message translates to:

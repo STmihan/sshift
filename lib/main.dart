@@ -11,6 +11,7 @@ import 'app/app.dart';
 import 'core/logger.dart';
 import 'data/data_providers.dart';
 import 'data/repositories/prefs_settings_repository.dart';
+import 'data/repositories/prefs_update_preferences_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,9 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await initializeDateFormatting();
   final prefs = await SharedPreferencesWithCache.create(
-    cacheOptions: const SharedPreferencesWithCacheOptions(allowList: PrefsSettingsRepository.keys),
+    cacheOptions: const SharedPreferencesWithCacheOptions(
+      allowList: {...PrefsSettingsRepository.keys, ...PrefsUpdatePreferencesRepository.keys},
+    ),
   );
 
   talker.info('App started');
@@ -37,7 +40,10 @@ Future<void> main() async {
           settings: const TalkerRiverpodLoggerSettings(printStateFullData: false),
         ),
       ],
-      overrides: [settingsRepositoryProvider.overrideWithValue(PrefsSettingsRepository(prefs))],
+      overrides: [
+        settingsRepositoryProvider.overrideWithValue(PrefsSettingsRepository(prefs)),
+        updatePreferencesRepositoryProvider.overrideWithValue(PrefsUpdatePreferencesRepository(prefs)),
+      ],
       child: const SShiftApp(),
     ),
   );

@@ -156,6 +156,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         }
       });
     }
+
     final painting = ref.watch(paintModeProvider) != null;
     final bottomReserve = navBarBottomReserve(context);
 

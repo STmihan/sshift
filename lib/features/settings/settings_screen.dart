@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/routes.dart';
 import '../../app/shell/nav_bar_metrics.dart';
 import '../../core/app_links.dart';
+import '../../core/app_version_provider.dart';
 import '../../core/logger.dart';
 import '../../core/theme/theme_context.dart';
 import '../../core/utils/formatters.dart';
@@ -14,10 +17,13 @@ import '../../core/widgets/field_row.dart';
 import '../../core/widgets/group_card.dart';
 import '../../core/widgets/option_picker_sheet.dart';
 import '../../core/widgets/page_header.dart';
+import '../../core/widgets/switch_row.dart';
 import '../../domain/models/app_settings.dart';
 import '../../domain/models/time_format.dart';
 import '../../l10n/app_localizations.dart';
-import 'app_version_provider.dart';
+import '../updates/update_sheet.dart';
+import '../updates/updates_controller.dart';
+import '../updates/widgets/update_badge.dart';
 import 'settings_controller.dart';
 import 'widgets/chevron.dart';
 import 'widgets/external_link_icon.dart';
@@ -38,6 +44,33 @@ class SettingsScreen extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final controller = ref.read(settingsProvider.notifier);
     final version = ref.watch(appVersionProvider).value;
+    final updates = ref.watch(updatesControllerProvider);
+    final available = updates.available;
+
+    Future<void> checkForUpdates() async {
+      final messenger = ScaffoldMessenger.of(context);
+      final upToDate = l.upToDate;
+      final failed = l.updateCheckFailed;
+
+      try {
+        final update = await ref.read(updatesControllerProvider.notifier).checkNow();
+
+        if (!context.mounted) {
+          return;
+        }
+
+        if (update == null) {
+          messenger.showSnackBar(SnackBar(content: Text(upToDate)));
+
+          return;
+        }
+
+        await showUpdateSheet(context, update);
+      } on Exception catch (error, stack) {
+        talker.handle(error, stack, 'Manual update check failed');
+        messenger.showSnackBar(SnackBar(content: Text(failed)));
+      }
+    }
 
     String languageLabel(String code) {
       return code == _followSystem ? l.system : _languageEndonyms[code]!;
@@ -179,6 +212,31 @@ class SettingsScreen extends ConsumerWidget {
                               await controller.update((s) => s.copyWith(currency: currency));
                             }
                           },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    GroupCard(
+                      children: [
+                        SwitchRow(
+                          label: l.autoCheckUpdates,
+                          value: settings.autoCheckUpdates,
+                          onChanged: (value) {
+                            unawaited(controller.update((s) => s.copyWith(autoCheckUpdates: value)));
+                          },
+                        ),
+                        FieldRow(
+                          label: l.checkForUpdates,
+                          trailing: updates.checking
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: p.textSecondary),
+                                )
+                              : available != null
+                              ? UpdateBadge(version: available.version)
+                              : const Chevron(),
+                          onTap: updates.checking ? null : checkForUpdates,
                         ),
                       ],
                     ),
