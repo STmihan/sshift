@@ -43,17 +43,9 @@ BackupDocument readBackupArchive(String path) {
   return _withArchive(path, _readDocument);
 }
 
-BackupDocument extractBackupArchive(String path, String attachmentsRoot) {
+List<Attachment> extractBackupAttachments(String path, String attachmentsRoot, List<Attachment> attachments) {
   return _withArchive(path, (archive) {
-    final document = _readDocument(archive);
-    final snapshot = document.snapshot;
-    final extracted = [for (final attachment in snapshot.attachments) _extract(archive, attachment, attachmentsRoot)];
-
-    return BackupDocument(
-      appVersion: document.appVersion,
-      exportedAt: document.exportedAt,
-      snapshot: snapshot.withAttachments(extracted),
-    );
+    return [for (final attachment in attachments) _extract(archive, attachment, attachmentsRoot)];
   });
 }
 
@@ -108,11 +100,17 @@ Attachment _extract(Archive archive, Attachment attachment, String root) {
     throw BackupFormatException(BackupRejection.corrupted, 'Attachment ${attachment.id} escapes the attachments root');
   }
 
+  final entry = archive.find(_attachmentEntry(attachment.id));
+
+  if (entry == null) {
+    throw BackupFormatException(BackupRejection.corrupted, 'No file for attachment ${attachment.id}');
+  }
+
   File(target).parent.createSync(recursive: true);
   final output = OutputFileStream(target);
 
   try {
-    archive.find(_attachmentEntry(attachment.id))!.writeContent(output);
+    entry.writeContent(output);
   } finally {
     output.closeSync();
   }

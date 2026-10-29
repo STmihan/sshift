@@ -41,6 +41,7 @@ class Shift with TimeSpan {
   int get earned => pay.totalFor(workedMinutes);
 
   Shift copyWith({
+    String? templateId,
     bool? allDay,
     int? startMinute,
     int? endMinute,
@@ -53,7 +54,7 @@ class Shift with TimeSpan {
   }) {
     return Shift(
       id: id,
-      templateId: templateId,
+      templateId: templateId ?? this.templateId,
       day: day,
       allDay: allDay ?? this.allDay,
       startMinute: startMinute ?? this.startMinute,

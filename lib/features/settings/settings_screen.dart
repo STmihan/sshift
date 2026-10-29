@@ -25,10 +25,12 @@ import '../reminders/reminder_permission.dart';
 import '../updates/update_sheet.dart';
 import '../updates/updates_controller.dart';
 import '../updates/widgets/update_available_row.dart';
+import 'backup/delete_all_data.dart';
 import 'backup/export_sheet.dart';
 import 'backup/import_backup.dart';
 import 'settings_controller.dart';
 import 'widgets/chevron.dart';
+import 'widgets/danger_row.dart';
 import 'widgets/external_link_icon.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -247,6 +249,7 @@ class SettingsScreen extends ConsumerWidget {
                           trailing: const Chevron(),
                           onTap: () => importBackup(context, ref),
                         ),
+                        DangerRow(label: l.dataDeleteAll, onTap: () => deleteAllData(context, ref)),
                       ],
                     ),
                     const SizedBox(height: 12),

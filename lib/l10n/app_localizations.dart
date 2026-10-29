@@ -883,6 +883,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The backup file is damaged'**
   String get backupCorrupted;
+
+  /// No description provided for @backupModeMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get backupModeMerge;
+
+  /// No description provided for @backupModeReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get backupModeReplace;
+
+  /// No description provided for @backupMergeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New records from the backup will be added. Records already in the app stay as they are.'**
+  String get backupMergeHint;
+
+  /// No description provided for @backupMergeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get backupMergeAction;
+
+  /// No description provided for @backupMergeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing new to add} one{Added {count} record} other{Added {count} records}}'**
+  String backupMergeDone(int count);
+
+  /// No description provided for @dataDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data'**
+  String get dataDeleteAll;
+
+  /// No description provided for @dataDeleteAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data?'**
+  String get dataDeleteAllTitle;
+
+  /// No description provided for @dataDeleteAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'All shift types, shifts, events and files will be deleted from this device. This can\'t be undone. Settings will stay.'**
+  String get dataDeleteAllBody;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @yesCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes ({seconds})'**
+  String yesCountdown(int seconds);
+
+  /// No description provided for @dataDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'All data deleted'**
+  String get dataDeleted;
+
+  /// No description provided for @dataDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete data'**
+  String get dataDeleteFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

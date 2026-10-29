@@ -13,6 +13,7 @@ import 'package:sshift/data/repositories/drift_schedule_repository.dart';
 import 'package:sshift/data/repositories/drift_templates_repository.dart';
 import 'package:sshift/domain/models/attachment_owner.dart';
 import 'package:sshift/domain/models/backup_format_exception.dart';
+import 'package:sshift/domain/models/backup_import_mode.dart';
 import 'package:sshift/domain/models/backup_rejection.dart';
 import 'package:sshift/domain/models/calendar_event.dart';
 import 'package:sshift/domain/models/pay.dart';
@@ -164,7 +165,7 @@ void main() {
 
     await templates.delete('t1');
     await schedule.upsertEvent(_event('e2'));
-    await backup.restore(path);
+    await backup.restore(path, BackupImportMode.replace);
 
     expect(await dump(), original);
 
@@ -199,7 +200,7 @@ void main() {
     await seed();
     final path = await backup.export(includeAttachments: false, appVersion: _appVersion);
 
-    await backup.restore(path);
+    await backup.restore(path, BackupImportMode.replace);
 
     expect(await db.select(db.shifts).get(), hasLength(1));
     expect(await db.select(db.attachments).get(), isEmpty);
@@ -215,6 +216,139 @@ void main() {
     expect(stats.attachments, 2);
   });
 
+  test('merge adds only new records and keeps local ones untouched', () async {
+    await seed();
+    final path = await backup.export(includeAttachments: true, appVersion: _appVersion);
+
+    await templates.delete('t1');
+    await templates.upsert(_template('t2'));
+    await schedule.upsertEvent(_event('e1').copyWith(title: 'Local title'));
+    await schedule.upsertEvent(_event('local'));
+    final written = await backup.restore(path, BackupImportMode.merge);
+
+    expect(written.templates, 1);
+    expect(written.shifts, 1);
+    expect(written.events, 0);
+    expect(written.attachments, 1);
+
+    final rows = await dump();
+
+    expect(rows['templates']!.map((t) => t['id']), unorderedEquals(['t1', 't2']));
+    expect(rows['events']!.map((e) => e['id']), unorderedEquals(['e1', 'local']));
+    expect(rows['events']!.firstWhere((e) => e['id'] == 'e1')['title'], 'Local title');
+    expect(rows['attachments']!.map((a) => a['ownerId']), unorderedEquals(['e1', 's1']));
+
+    final photo = rows['attachments']!.firstWhere((a) => a['ownerId'] == 's1');
+
+    expect(await File(p.join(root.path, photo['path'] as String)).readAsBytes(), [1, 2, 3, 4]);
+    expect(await Directory('${root.path}_import').exists(), isFalse);
+  });
+
+  test('merge appends new shift types after the local ones', () async {
+    await seed();
+    final path = await backup.export(includeAttachments: false, appVersion: _appVersion);
+
+    await templates.delete('t1');
+    await templates.upsert(_template('t2').copyWith(sortOrder: 4));
+    await backup.restore(path, BackupImportMode.merge);
+
+    final imported = await (db.select(db.shiftTemplates)..where((t) => t.id.equals('t1'))).getSingle();
+
+    expect(imported.sortOrder, 5);
+  });
+
+  test('merge skips a shift when the day already has a shift of that type', () async {
+    await seed();
+    final path = await backup.export(includeAttachments: true, appVersion: _appVersion);
+
+    await schedule.deleteShift('s1');
+    await schedule.upsertShift(_shift('s2', 't1'));
+    final written = await backup.restore(path, BackupImportMode.merge);
+
+    expect(written.shifts, 0);
+    expect(written.attachments, 0);
+    expect((await db.select(db.shifts).get()).map((s) => s.id), ['s2']);
+  });
+
+  test('merging the same backup twice adds nothing the second time', () async {
+    await seed();
+    final path = await backup.export(includeAttachments: true, appVersion: _appVersion);
+
+    await backup.restore(path, BackupImportMode.merge);
+    final before = await dump();
+    final written = await backup.restore(path, BackupImportMode.merge);
+
+    expect(written.templates + written.shifts + written.events + written.attachments, 0);
+    expect(await dump(), before);
+  });
+
+  test('merge reuses a local shift type with identical content and skips identical events', () async {
+    await seed();
+    final path = await backup.export(includeAttachments: true, appVersion: _appVersion);
+    final twin = ShiftTemplate(
+      id: 'local-day',
+      title: 'Day t1',
+      icon: 'D',
+      color: 0xFF4CAF50,
+      startMinute: 8 * 60,
+      endMinute: 18 * 60,
+      breakMinutes: 60,
+      defaultPay: const Pay(PayType.hourly, 50000),
+      location: 'Office',
+      sortOrder: 7,
+      reminder: const Reminder.beforeStart(30),
+      updatedAt: DateTime(2026, 10, 28),
+    );
+
+    await templates.delete('t1');
+    await schedule.deleteEvent('e1');
+    await templates.upsert(twin);
+    await schedule.upsertEvent(
+      CalendarEvent(
+        id: 'local-event',
+        day: DateTime(2026, 11, 2),
+        title: 'Doctor',
+        allDay: true,
+        startMinute: 0,
+        endMinute: 0,
+        reminder: const Reminder.onDay(daysBefore: 1, minuteOfDay: 9 * 60),
+        updatedAt: DateTime(2026, 10, 28),
+      ),
+    );
+    final written = await backup.restore(path, BackupImportMode.merge);
+
+    expect(written.templates, 0);
+    expect(written.shifts, 1);
+    expect(written.events, 0);
+    expect(written.attachments, 1);
+    expect((await db.select(db.shiftTemplates).get()).map((t) => t.id), ['local-day']);
+    expect((await db.select(db.shifts).get()).single.templateId, 'local-day');
+    expect((await db.select(db.events).get()).map((e) => e.id), ['local-event']);
+  });
+
+  test('merge adds a shift type that differs from the local one', () async {
+    await seed();
+    final path = await backup.export(includeAttachments: false, appVersion: _appVersion);
+
+    await templates.delete('t1');
+    await templates.upsert(
+      _template('local-day').copyWith(title: 'Day t1', color: 0xFF2196F3),
+    );
+    final written = await backup.restore(path, BackupImportMode.merge);
+
+    expect(written.templates, 1);
+    expect((await db.select(db.shifts).get()).single.templateId, 't1');
+  });
+
+  test('deleteAll removes every record and attachment file', () async {
+    await seed();
+
+    await backup.deleteAll();
+
+    expect((await dump()).values.every((rows) => rows.isEmpty), isTrue);
+    expect(await root.exists(), isFalse);
+  });
+
   test('a file that is not a zip is unrecognized and changes nothing', () async {
     await seed();
     final before = await dump();
@@ -223,7 +357,8 @@ void main() {
     await file.writeAsString('hello');
 
     expect(await rejection(() => backup.inspect(file.path)), BackupRejection.unrecognized);
-    expect(await rejection(() => backup.restore(file.path)), BackupRejection.unrecognized);
+    expect(await rejection(() => backup.restore(file.path, BackupImportMode.replace)), BackupRejection.unrecognized);
+    expect(await rejection(() => backup.restore(file.path, BackupImportMode.merge)), BackupRejection.unrecognized);
     expect(await dump(), before);
   });
 
@@ -256,7 +391,7 @@ void main() {
       ];
     final path = await archive(json);
 
-    expect(await rejection(() => backup.restore(path)), BackupRejection.corrupted);
+    expect(await rejection(() => backup.restore(path, BackupImportMode.replace)), BackupRejection.corrupted);
     expect(await dump(), before);
     expect(await root.list(recursive: true).map((e) => e.path).toList(), unorderedEquals(beforeFiles));
     expect(await Directory('${root.path}_import').exists(), isFalse);

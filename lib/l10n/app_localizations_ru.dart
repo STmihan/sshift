@@ -488,4 +488,55 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backupCorrupted => 'Файл резервной копии повреждён';
+
+  @override
+  String get backupModeMerge => 'Добавить';
+
+  @override
+  String get backupModeReplace => 'Заменить';
+
+  @override
+  String get backupMergeHint =>
+      'Новые записи из копии добавятся к текущим. Записи, которые уже есть в приложении, не изменятся.';
+
+  @override
+  String get backupMergeAction => 'Импортировать';
+
+  @override
+  String backupMergeDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавлено $count записи',
+      many: 'Добавлено $count записей',
+      few: 'Добавлено $count записи',
+      one: 'Добавлена $count запись',
+      zero: 'Новых записей нет',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dataDeleteAll => 'Удалить все данные';
+
+  @override
+  String get dataDeleteAllTitle => 'Удалить все данные?';
+
+  @override
+  String get dataDeleteAllBody =>
+      'Все типы смен, смены, события и файлы будут удалены с этого устройства без возможности восстановления. Настройки останутся.';
+
+  @override
+  String get yes => 'Да';
+
+  @override
+  String yesCountdown(int seconds) {
+    return 'Да ($seconds)';
+  }
+
+  @override
+  String get dataDeleted => 'Все данные удалены';
+
+  @override
+  String get dataDeleteFailed => 'Не удалось удалить данные';
 }

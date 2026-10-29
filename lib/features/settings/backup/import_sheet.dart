@@ -8,10 +8,13 @@ import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/field_row.dart';
 import '../../../core/widgets/group_card.dart';
 import '../../../core/widgets/pill_button.dart';
+import '../../../core/widgets/pill_segments.dart';
 import '../../../core/widgets/sheet_header.dart';
 import '../../../data/data_providers.dart';
 import '../../../domain/models/backup_format_exception.dart';
+import '../../../domain/models/backup_import_mode.dart';
 import '../../../domain/models/backup_info.dart';
+import '../../../domain/models/backup_stats.dart';
 import '../../../l10n/app_localizations.dart';
 import 'backup_rejection_text.dart';
 import 'widgets/backup_stat_rows.dart';
@@ -36,7 +39,9 @@ class ImportSheet extends ConsumerStatefulWidget {
 
 class _ImportSheetState extends ConsumerState<ImportSheet> {
   static const _progressHeight = 50.0;
+  static const _modes = [BackupImportMode.merge, BackupImportMode.replace];
 
+  var _mode = BackupImportMode.merge;
   var _restoring = false;
   String? _error;
 
@@ -44,6 +49,7 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
     final l = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    final mode = _mode;
 
     setState(() {
       _restoring = true;
@@ -51,18 +57,19 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
     });
 
     try {
-      await ref.read(backupRepositoryProvider).restore(widget.path);
-      talker.info('Backup from ${widget.info.exportedAt} restored');
-      messenger.showSnackBar(SnackBar(content: Text(l.backupImportDone)));
+      final written = await ref.read(backupRepositoryProvider).restore(widget.path, mode);
+
+      talker.info('Backup from ${widget.info.exportedAt} imported (${mode.name}): ${_recordCount(written)} records');
+      messenger.showSnackBar(SnackBar(content: Text(_doneText(l, mode, written))));
 
       if (mounted) {
         navigator.pop();
       }
     } on BackupFormatException catch (error, stack) {
-      talker.handle(error, stack, 'Backup restore rejected');
+      talker.handle(error, stack, 'Backup import rejected');
       _fail(backupRejectionText(l, error.reason));
     } on Exception catch (error, stack) {
-      talker.handle(error, stack, 'Backup restore failed');
+      talker.handle(error, stack, 'Backup import failed');
       _fail(l.backupImportFailed);
     }
   }
@@ -78,11 +85,31 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
     });
   }
 
+  static int _recordCount(BackupStats stats) {
+    return stats.templates + stats.shifts + stats.events;
+  }
+
+  static String _doneText(AppLocalizations l, BackupImportMode mode, BackupStats written) {
+    return switch (mode) {
+      BackupImportMode.merge => l.backupMergeDone(_recordCount(written)),
+      BackupImportMode.replace => l.backupImportDone,
+    };
+  }
+
+  String _modeLabel(AppLocalizations l, BackupImportMode mode) {
+    return switch (mode) {
+      BackupImportMode.merge => l.backupModeMerge,
+      BackupImportMode.replace => l.backupModeReplace,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final p = context.palette;
     final error = _error;
+    final replacing = _mode == BackupImportMode.replace;
+    final hint = replacing ? l.backupImportWarning : l.backupMergeHint;
 
     return PopScope(
       canPop: !_restoring,
@@ -101,11 +128,36 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
                   ...backupStatRows(context, widget.info.stats),
                 ],
               ),
+              const SizedBox(height: 12),
+              GroupCard(
+                padding: const EdgeInsets.all(6),
+                children: [
+                  PillSegments<BackupImportMode>(
+                    values: _modes,
+                    labels: [for (final mode in _modes) _modeLabel(l, mode)],
+                    selected: _mode,
+                    onChanged: (mode) {
+                      if (_restoring) {
+                        return;
+                      }
+
+                      setState(() {
+                        _mode = mode;
+                        _error = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               Text(
-                error ?? l.backupImportWarning,
+                error ?? hint,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, height: 1.4, color: error != null ? p.danger : p.textSecondary),
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: error != null || replacing ? p.danger : p.textSecondary,
+                ),
               ),
               const SizedBox(height: 16),
               if (_restoring)
@@ -114,7 +166,11 @@ class _ImportSheetState extends ConsumerState<ImportSheet> {
                   child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                 )
               else ...[
-                PillButton(label: l.backupImportAction, icon: Icons.restore_rounded, onTap: _restore),
+                PillButton(
+                  label: replacing ? l.backupImportAction : l.backupMergeAction,
+                  icon: replacing ? Icons.restore_rounded : Icons.download_rounded,
+                  onTap: _restore,
+                ),
                 const SizedBox(height: 8),
                 PillButton(label: l.cancel, filled: false, onTap: () => Navigator.of(context).pop()),
               ],

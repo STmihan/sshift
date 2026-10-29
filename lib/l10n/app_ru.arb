@@ -141,5 +141,17 @@
   "backupImportFailed": "Не удалось импортировать данные",
   "backupUnrecognized": "Это не файл резервной копии SShift",
   "backupNewerVersion": "Копия создана более новой версией SShift. Сначала обновите приложение.",
-  "backupCorrupted": "Файл резервной копии повреждён"
+  "backupCorrupted": "Файл резервной копии повреждён",
+  "backupModeMerge": "Добавить",
+  "backupModeReplace": "Заменить",
+  "backupMergeHint": "Новые записи из копии добавятся к текущим. Записи, которые уже есть в приложении, не изменятся.",
+  "backupMergeAction": "Импортировать",
+  "backupMergeDone": "{count, plural, =0{Новых записей нет} one{Добавлена {count} запись} few{Добавлено {count} записи} many{Добавлено {count} записей} other{Добавлено {count} записи}}",
+  "dataDeleteAll": "Удалить все данные",
+  "dataDeleteAllTitle": "Удалить все данные?",
+  "dataDeleteAllBody": "Все типы смен, смены, события и файлы будут удалены с этого устройства без возможности восстановления. Настройки останутся.",
+  "yes": "Да",
+  "yesCountdown": "Да ({seconds})",
+  "dataDeleted": "Все данные удалены",
+  "dataDeleteFailed": "Не удалось удалить данные"
 }

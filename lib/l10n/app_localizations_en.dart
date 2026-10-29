@@ -480,4 +480,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupCorrupted => 'The backup file is damaged';
+
+  @override
+  String get backupModeMerge => 'Add';
+
+  @override
+  String get backupModeReplace => 'Replace';
+
+  @override
+  String get backupMergeHint =>
+      'New records from the backup will be added. Records already in the app stay as they are.';
+
+  @override
+  String get backupMergeAction => 'Import';
+
+  @override
+  String backupMergeDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Added $count records',
+      one: 'Added $count record',
+      zero: 'Nothing new to add',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dataDeleteAll => 'Delete all data';
+
+  @override
+  String get dataDeleteAllTitle => 'Delete all data?';
+
+  @override
+  String get dataDeleteAllBody =>
+      'All shift types, shifts, events and files will be deleted from this device. This can\'t be undone. Settings will stay.';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String yesCountdown(int seconds) {
+    return 'Yes ($seconds)';
+  }
+
+  @override
+  String get dataDeleted => 'All data deleted';
+
+  @override
+  String get dataDeleteFailed => 'Couldn\'t delete data';
 }
