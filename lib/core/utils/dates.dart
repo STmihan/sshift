@@ -43,3 +43,11 @@ int weeksInMonth(DateTime month, int firstDayOfWeek) {
 
   return ((offset + days) / 7).ceil();
 }
+
+String isoDate(DateTime d) {
+  final year = '${d.year}'.padLeft(4, '0');
+  final month = '${d.month}'.padLeft(2, '0');
+  final day = '${d.day}'.padLeft(2, '0');
+
+  return '$year-$month-$day';
+}

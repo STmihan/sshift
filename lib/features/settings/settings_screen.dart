@@ -25,6 +25,8 @@ import '../reminders/reminder_permission.dart';
 import '../updates/update_sheet.dart';
 import '../updates/updates_controller.dart';
 import '../updates/widgets/update_available_row.dart';
+import 'backup/export_sheet.dart';
+import 'backup/import_backup.dart';
 import 'settings_controller.dart';
 import 'widgets/chevron.dart';
 import 'widgets/external_link_icon.dart';
@@ -229,6 +231,21 @@ class SettingsScreen extends ConsumerWidget {
                               unawaited(requestReminderPermission(context, ref));
                             }
                           },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    GroupCard(
+                      children: [
+                        FieldRow(
+                          label: l.dataExport,
+                          trailing: const Chevron(),
+                          onTap: () => showExportSheet(context),
+                        ),
+                        FieldRow(
+                          label: l.dataImport,
+                          trailing: const Chevron(),
+                          onTap: () => importBackup(context, ref),
                         ),
                       ],
                     ),

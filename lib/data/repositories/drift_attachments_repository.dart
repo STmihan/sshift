@@ -10,7 +10,9 @@ import '../../domain/models/attachment.dart';
 import '../../domain/models/attachment_owner.dart';
 import '../../domain/models/attachment_owner_type.dart';
 import '../../domain/repositories/attachments_repository.dart';
+import '../attachments/attachment_paths.dart';
 import '../database/app_database.dart';
+import '../mappers/attachment_row_mapper.dart';
 
 class DriftAttachmentsRepository implements AttachmentsRepository {
   DriftAttachmentsRepository(this._db, {Future<Directory> Function()? root}) : _root = root ?? _defaultRoot;
@@ -28,7 +30,7 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
       ..where((a) => a.ownerType.equals(owner.type.name) & a.ownerId.equals(owner.id))
       ..orderBy([(a) => OrderingTerm(expression: a.createdAt)]);
 
-    return query.watch().map((rows) => rows.map(_toDomain).toList());
+    return query.watch().map((rows) => rows.map(attachmentFromRow).toList());
   }
 
   @override
@@ -47,7 +49,7 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
 
     final id = newId();
     final name = file.name.isEmpty ? p.basename(file.path) : file.name;
-    final relative = p.join(owner.id, '${id}_${_safeFileName(name)}');
+    final relative = attachmentRelativePath(owner.id, id, name);
     final target = File(p.join((await _root()).path, relative));
 
     await target.parent.create(recursive: true);
@@ -62,19 +64,7 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
       createdAt: DateTime.now(),
     );
 
-    await _db
-        .into(_db.attachments)
-        .insert(
-          AttachmentsCompanion.insert(
-            id: attachment.id,
-            ownerType: owner.type.name,
-            ownerId: owner.id,
-            name: attachment.name,
-            path: attachment.path,
-            size: attachment.size,
-            createdAt: attachment.createdAt,
-          ),
-        );
+    await _db.into(_db.attachments).insert(attachmentToCompanion(attachment));
 
     return attachment;
   }
@@ -106,7 +96,7 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
                       (a.ownerType.equals(AttachmentOwnerType.event.name) & a.ownerId.isNotInQuery(eventIds))),
             ))
             .get();
-    final owners = {for (final row in orphans) _ownerOf(row)};
+    final owners = {for (final row in orphans) attachmentOwnerFromRow(row)};
 
     for (final owner in owners) {
       await deleteForOwner(owner);
@@ -116,6 +106,10 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
   @override
   Future<String> resolvePath(Attachment attachment) async {
     return p.join((await _root()).path, attachment.path);
+  }
+
+  Future<Directory> rootDirectory() {
+    return _root();
   }
 
   Future<void> deleteForOwners(AttachmentOwnerType type, List<String> ownerIds) async {
@@ -133,24 +127,5 @@ class DriftAttachmentsRepository implements AttachmentsRepository {
         await dir.delete(recursive: true);
       }
     }
-  }
-
-  static String _safeFileName(String name) {
-    return name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-  }
-
-  AttachmentOwner _ownerOf(AttachmentRow row) {
-    return AttachmentOwner(AttachmentOwnerType.values.byName(row.ownerType), row.ownerId);
-  }
-
-  Attachment _toDomain(AttachmentRow row) {
-    return Attachment(
-      id: row.id,
-      owner: _ownerOf(row),
-      name: row.name,
-      path: row.path,
-      size: row.size,
-      createdAt: row.createdAt,
-    );
   }
 }

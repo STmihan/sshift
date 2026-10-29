@@ -431,4 +431,61 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get openLinkFailed => 'Не удалось открыть ссылку';
+
+  @override
+  String get dataExport => 'Экспорт данных';
+
+  @override
+  String get dataImport => 'Импорт данных';
+
+  @override
+  String get backupShiftTypes => 'Типы смен';
+
+  @override
+  String get backupShifts => 'Смены';
+
+  @override
+  String get backupEvents => 'События';
+
+  @override
+  String get backupFiles => 'Файлы';
+
+  @override
+  String backupFilesValue(int count, String size) {
+    return '$count · $size';
+  }
+
+  @override
+  String get backupCreatedAt => 'Создана';
+
+  @override
+  String get backupIncludeFiles => 'Включить файлы';
+
+  @override
+  String get backupExportAction => 'Экспортировать';
+
+  @override
+  String get backupExportFailed => 'Не удалось экспортировать данные';
+
+  @override
+  String get backupImportWarning =>
+      'Все текущие типы смен, смены, события и файлы будут удалены и заменены данными из копии.';
+
+  @override
+  String get backupImportAction => 'Заменить данные';
+
+  @override
+  String get backupImportDone => 'Данные импортированы';
+
+  @override
+  String get backupImportFailed => 'Не удалось импортировать данные';
+
+  @override
+  String get backupUnrecognized => 'Это не файл резервной копии SShift';
+
+  @override
+  String get backupNewerVersion => 'Копия создана более новой версией SShift. Сначала обновите приложение.';
+
+  @override
+  String get backupCorrupted => 'Файл резервной копии повреждён';
 }

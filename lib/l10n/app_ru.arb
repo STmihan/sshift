@@ -122,5 +122,24 @@
   "installFailed": "Не удалось открыть установщик",
   "retry": "Повторить",
   "megabytes": "{value} МБ",
-  "openLinkFailed": "Не удалось открыть ссылку"
+  "openLinkFailed": "Не удалось открыть ссылку",
+
+  "dataExport": "Экспорт данных",
+  "dataImport": "Импорт данных",
+  "backupShiftTypes": "Типы смен",
+  "backupShifts": "Смены",
+  "backupEvents": "События",
+  "backupFiles": "Файлы",
+  "backupFilesValue": "{count} · {size}",
+  "backupCreatedAt": "Создана",
+  "backupIncludeFiles": "Включить файлы",
+  "backupExportAction": "Экспортировать",
+  "backupExportFailed": "Не удалось экспортировать данные",
+  "backupImportWarning": "Все текущие типы смен, смены, события и файлы будут удалены и заменены данными из копии.",
+  "backupImportAction": "Заменить данные",
+  "backupImportDone": "Данные импортированы",
+  "backupImportFailed": "Не удалось импортировать данные",
+  "backupUnrecognized": "Это не файл резервной копии SShift",
+  "backupNewerVersion": "Копия создана более новой версией SShift. Сначала обновите приложение.",
+  "backupCorrupted": "Файл резервной копии повреждён"
 }

@@ -8,8 +8,9 @@ import '../../domain/models/pay_type.dart';
 import '../../domain/models/shift.dart';
 import '../../domain/repositories/schedule_repository.dart';
 import '../database/app_database.dart';
+import '../mappers/event_row_mapper.dart';
 import '../mappers/pay_mapper.dart';
-import '../mappers/reminder_mapper.dart';
+import '../mappers/shift_row_mapper.dart';
 import 'drift_attachments_repository.dart';
 
 class DriftScheduleRepository implements ScheduleRepository {
@@ -22,12 +23,12 @@ class DriftScheduleRepository implements ScheduleRepository {
 
   @override
   Stream<List<Shift>> watchShifts(DateTime from, DateTime to) {
-    return _shiftsQuery(from, to).watch().map((rows) => rows.map(_shiftToDomain).toList());
+    return _shiftsQuery(from, to).watch().map((rows) => rows.map(shiftFromRow).toList());
   }
 
   @override
   Future<List<Shift>> getShifts(DateTime from, DateTime to) async {
-    return (await _shiftsQuery(from, to).get()).map(_shiftToDomain).toList();
+    return (await _shiftsQuery(from, to).get()).map(shiftFromRow).toList();
   }
 
   @override
@@ -40,30 +41,12 @@ class DriftScheduleRepository implements ScheduleRepository {
         (e) => OrderingTerm(expression: e.startMinute),
       ]);
 
-    return query.watch().map((rows) => rows.map(_eventToDomain).toList());
+    return query.watch().map((rows) => rows.map(eventFromRow).toList());
   }
 
   @override
   Future<void> upsertShift(Shift s) {
-    return _db
-        .into(_db.shifts)
-        .insertOnConflictUpdate(
-          ShiftsCompanion.insert(
-            id: s.id,
-            templateId: s.templateId,
-            day: dayKey(s.day),
-            allDay: s.allDay,
-            startMinute: s.startMinute,
-            endMinute: s.endMinute,
-            breakMinutes: s.breakMinutes,
-            notes: s.notes,
-            location: s.location,
-            payType: s.pay.type.index,
-            payAmount: s.pay.amount,
-            updatedAt: s.updatedAt,
-            reminderOffset: Value(s.reminder?.offsetMinutes),
-          ),
-        );
+    return _db.into(_db.shifts).insertOnConflictUpdate(shiftToCompanion(s));
   }
 
   @override
@@ -76,24 +59,7 @@ class DriftScheduleRepository implements ScheduleRepository {
 
   @override
   Future<void> upsertEvent(CalendarEvent e) {
-    return _db
-        .into(_db.events)
-        .insertOnConflictUpdate(
-          EventsCompanion.insert(
-            id: e.id,
-            day: dayKey(e.day),
-            title: e.title,
-            allDay: e.allDay,
-            startMinute: e.startMinute,
-            endMinute: e.endMinute,
-            notes: e.notes,
-            location: e.location,
-            payType: e.pay.type.index,
-            payAmount: e.pay.amount,
-            updatedAt: e.updatedAt,
-            reminderOffset: Value(e.reminder?.offsetMinutes),
-          ),
-        );
+    return _db.into(_db.events).insertOnConflictUpdate(eventToCompanion(e));
   }
 
   @override
@@ -139,38 +105,5 @@ class DriftScheduleRepository implements ScheduleRepository {
         (s) => OrderingTerm(expression: s.day),
         (s) => OrderingTerm(expression: s.startMinute),
       ]);
-  }
-
-  Shift _shiftToDomain(ShiftRow row) {
-    return Shift(
-      id: row.id,
-      templateId: row.templateId,
-      day: fromDayKey(row.day),
-      allDay: row.allDay,
-      startMinute: row.startMinute,
-      endMinute: row.endMinute,
-      breakMinutes: row.breakMinutes,
-      notes: row.notes,
-      location: row.location,
-      pay: payFromColumns(row.payType, row.payAmount),
-      updatedAt: row.updatedAt,
-      reminder: reminderFromColumn(row.reminderOffset),
-    );
-  }
-
-  CalendarEvent _eventToDomain(EventRow row) {
-    return CalendarEvent(
-      id: row.id,
-      day: fromDayKey(row.day),
-      title: row.title,
-      allDay: row.allDay,
-      startMinute: row.startMinute,
-      endMinute: row.endMinute,
-      notes: row.notes,
-      location: row.location,
-      pay: payFromColumns(row.payType, row.payAmount),
-      updatedAt: row.updatedAt,
-      reminder: reminderFromColumn(row.reminderOffset),
-    );
   }
 }

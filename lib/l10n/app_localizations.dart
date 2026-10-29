@@ -775,6 +775,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Can\'t open the link'**
   String get openLinkFailed;
+
+  /// No description provided for @dataExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data'**
+  String get dataExport;
+
+  /// No description provided for @dataImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import data'**
+  String get dataImport;
+
+  /// No description provided for @backupShiftTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift types'**
+  String get backupShiftTypes;
+
+  /// No description provided for @backupShifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Shifts'**
+  String get backupShifts;
+
+  /// No description provided for @backupEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get backupEvents;
+
+  /// No description provided for @backupFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get backupFiles;
+
+  /// No description provided for @backupFilesValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {size}'**
+  String backupFilesValue(int count, String size);
+
+  /// No description provided for @backupCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get backupCreatedAt;
+
+  /// No description provided for @backupIncludeFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Include files'**
+  String get backupIncludeFiles;
+
+  /// No description provided for @backupExportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get backupExportAction;
+
+  /// No description provided for @backupExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t export data'**
+  String get backupExportFailed;
+
+  /// No description provided for @backupImportWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'All current shift types, shifts, events and files will be deleted and replaced with the data from the backup.'**
+  String get backupImportWarning;
+
+  /// No description provided for @backupImportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace data'**
+  String get backupImportAction;
+
+  /// No description provided for @backupImportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Data imported'**
+  String get backupImportDone;
+
+  /// No description provided for @backupImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t import data'**
+  String get backupImportFailed;
+
+  /// No description provided for @backupUnrecognized.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not an SShift backup file'**
+  String get backupUnrecognized;
+
+  /// No description provided for @backupNewerVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup was made by a newer version of SShift. Update the app first.'**
+  String get backupNewerVersion;
+
+  /// No description provided for @backupCorrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup file is damaged'**
+  String get backupCorrupted;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

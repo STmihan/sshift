@@ -423,4 +423,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openLinkFailed => 'Can\'t open the link';
+
+  @override
+  String get dataExport => 'Export data';
+
+  @override
+  String get dataImport => 'Import data';
+
+  @override
+  String get backupShiftTypes => 'Shift types';
+
+  @override
+  String get backupShifts => 'Shifts';
+
+  @override
+  String get backupEvents => 'Events';
+
+  @override
+  String get backupFiles => 'Files';
+
+  @override
+  String backupFilesValue(int count, String size) {
+    return '$count · $size';
+  }
+
+  @override
+  String get backupCreatedAt => 'Created';
+
+  @override
+  String get backupIncludeFiles => 'Include files';
+
+  @override
+  String get backupExportAction => 'Export';
+
+  @override
+  String get backupExportFailed => 'Couldn\'t export data';
+
+  @override
+  String get backupImportWarning =>
+      'All current shift types, shifts, events and files will be deleted and replaced with the data from the backup.';
+
+  @override
+  String get backupImportAction => 'Replace data';
+
+  @override
+  String get backupImportDone => 'Data imported';
+
+  @override
+  String get backupImportFailed => 'Couldn\'t import data';
+
+  @override
+  String get backupUnrecognized => 'This is not an SShift backup file';
+
+  @override
+  String get backupNewerVersion => 'The backup was made by a newer version of SShift. Update the app first.';
+
+  @override
+  String get backupCorrupted => 'The backup file is damaged';
 }

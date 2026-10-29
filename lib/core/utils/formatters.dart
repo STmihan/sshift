@@ -120,6 +120,10 @@ String formatDayHeader(BuildContext context, DateTime d) {
   return _capitalize(_dateFormat(context, 'MMMEd').format(d));
 }
 
+String formatDateTime(BuildContext context, DateTime d) {
+  return '${_dateFormat(context, 'yMMMd').format(d)}, ${formatTime(context, d.hour * 60 + d.minute)}';
+}
+
 String formatWeekdayNarrow(BuildContext context, int weekday) {
   return _dateFormat(context, 'EEEEE').format(_weekday(weekday)).toUpperCase();
 }

@@ -147,5 +147,25 @@
   "retry": "Retry",
   "megabytes": "{value} MB",
   "@megabytes": {"placeholders": {"value": {"type": "String"}}},
-  "openLinkFailed": "Can't open the link"
+  "openLinkFailed": "Can't open the link",
+
+  "dataExport": "Export data",
+  "dataImport": "Import data",
+  "backupShiftTypes": "Shift types",
+  "backupShifts": "Shifts",
+  "backupEvents": "Events",
+  "backupFiles": "Files",
+  "backupFilesValue": "{count} · {size}",
+  "@backupFilesValue": {"placeholders": {"count": {"type": "int"}, "size": {"type": "String"}}},
+  "backupCreatedAt": "Created",
+  "backupIncludeFiles": "Include files",
+  "backupExportAction": "Export",
+  "backupExportFailed": "Couldn't export data",
+  "backupImportWarning": "All current shift types, shifts, events and files will be deleted and replaced with the data from the backup.",
+  "backupImportAction": "Replace data",
+  "backupImportDone": "Data imported",
+  "backupImportFailed": "Couldn't import data",
+  "backupUnrecognized": "This is not an SShift backup file",
+  "backupNewerVersion": "The backup was made by a newer version of SShift. Update the app first.",
+  "backupCorrupted": "The backup file is damaged"
 }

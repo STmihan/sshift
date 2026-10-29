@@ -4,8 +4,7 @@ import '../../domain/models/attachment_owner_type.dart';
 import '../../domain/models/shift_template.dart';
 import '../../domain/repositories/templates_repository.dart';
 import '../database/app_database.dart';
-import '../mappers/pay_mapper.dart';
-import '../mappers/reminder_mapper.dart';
+import '../mappers/template_row_mapper.dart';
 import 'drift_attachments_repository.dart';
 
 class DriftTemplatesRepository implements TemplatesRepository {
@@ -22,31 +21,12 @@ class DriftTemplatesRepository implements TemplatesRepository {
         (t) => OrderingTerm(expression: t.title),
       ]);
 
-    return query.watch().map((rows) => rows.map(_toDomain).toList());
+    return query.watch().map((rows) => rows.map(templateFromRow).toList());
   }
 
   @override
   Future<void> upsert(ShiftTemplate t) {
-    return _db
-        .into(_db.shiftTemplates)
-        .insertOnConflictUpdate(
-          ShiftTemplatesCompanion.insert(
-            id: t.id,
-            title: t.title,
-            icon: t.icon,
-            color: t.color,
-            allDay: t.allDay,
-            startMinute: t.startMinute,
-            endMinute: t.endMinute,
-            breakMinutes: t.breakMinutes,
-            payType: t.defaultPay.type.index,
-            payAmount: t.defaultPay.amount,
-            location: t.location,
-            sortOrder: t.sortOrder,
-            updatedAt: t.updatedAt,
-            reminderOffset: Value(t.reminder?.offsetMinutes),
-          ),
-        );
+    return _db.into(_db.shiftTemplates).insertOnConflictUpdate(templateToCompanion(t));
   }
 
   @override
@@ -76,23 +56,5 @@ class DriftTemplatesRepository implements TemplatesRepository {
       await (_db.delete(_db.shifts)..where((s) => s.templateId.equals(id))).go();
       await (_db.delete(_db.shiftTemplates)..where((t) => t.id.equals(id))).go();
     });
-  }
-
-  ShiftTemplate _toDomain(TemplateRow row) {
-    return ShiftTemplate(
-      id: row.id,
-      title: row.title,
-      icon: row.icon,
-      color: row.color,
-      allDay: row.allDay,
-      startMinute: row.startMinute,
-      endMinute: row.endMinute,
-      breakMinutes: row.breakMinutes,
-      defaultPay: payFromColumns(row.payType, row.payAmount),
-      location: row.location,
-      sortOrder: row.sortOrder,
-      updatedAt: row.updatedAt,
-      reminder: reminderFromColumn(row.reminderOffset),
-    );
   }
 }
